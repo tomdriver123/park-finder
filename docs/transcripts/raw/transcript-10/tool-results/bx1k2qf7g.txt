@@ -1,0 +1,435 @@
+# PLAN.md
+
+Build order for the Park Finder take-home. Four slices, one session each, one commit each.
+CLAUDE.md is the contract; this file lists what is in scope, in what order, and the decisions
+CLAUDE.md leaves open. Optional brief items (search, filters, location) are not listed, so they are
+out of scope. Deferred items at the end are known gaps, not scope.
+
+## Session protocol
+
+Steps are tagged with who runs them: [fable] this overseeing session, [opus] or [sonnet] a
+subagent with that model passed explicitly. See Model routing below.
+
+1. [fable] Read, in order: the handoff Tom names (normally the newest `handoffs/handoff-N.md`),
+   CLAUDE.md, `docs/local-parks-candidate.pdf`, `public/assets/parks.sample.json`, this file.
+   Sessions 4 and 5 run in parallel (decided in session 3): slice 2 on main from handoff-3, slice
+   3 in the worktree `../park-finder-slice-3` on branch `slice-3` from handoff-4. Slice 2 commits
+   first; slice 3 rebases, wires the map into parks-page, and fast-forwards main. Handoff numbers
+   for those sessions are fixed in the handoffs (5 for slice 2, 6 for slice 3).
+2. [all] Every shell command starts with
+   `export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 24.21.0 >/dev/null;`
+   Use `npx ng`, never bare `ng`.
+3. [fable] Launch the slice's subagent with CLAUDE.md, this file, and the slice prompt, model
+   passed explicitly per the slice tag.
+4. [subagent] Tests first. Write the slice's specs with expected values taken from CLAUDE.md and
+   the Decisions below, run `npx ng test --watch=false` and capture the failing run, implement,
+   capture the passing run. Then `npx prettier --write .`, `npx ng build`,
+   `npx ng test --watch=false`, all clean. Report the diff and both test outputs.
+5. [fable] Run `git diff` and `npx ng test --watch=false` yourself and show Tom the real output,
+   never the subagent's summary. Wait for Tom to say "commit".
+6. [fable] One conventional commit per slice, Co-Authored-By trailer kept. Push with
+   `git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push`.
+7. [fable] Log the session's minutes in the Time log below. End with `/handoff`.
+8. [all] Unclear requirement: ask before building. Nothing outside the slice. No new dependencies.
+
+## Decisions (settled in sessions 1 and 2; apply without asking)
+
+Fable oversees because review and accountability stay in one place. The slices are delegated
+because the rules are already settled in CLAUDE.md and this file. The split is a time decision
+made at 01:40 EDT on 2026-10-08.
+
+### Data (normalize.ts)
+
+| Field / case                                                                  | Rule                                                                                                                                |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Top-level not an array                                                        | `normalizeParks` throws; the service reports "Could not load parks."                                                                |
+| Fetch failure or invalid JSON                                                 | `error` = "Could not load parks.", `parks` = [], `loading` = false                                                                  |
+| Empty array                                                                   | `parks` = [], panel shows "No parks to show."                                                                                       |
+| `id` missing, null, non-string, or blank                                      | Row dropped (`normalizePark` returns null)                                                                                          |
+| Duplicate `id`                                                                | First row kept                                                                                                                      |
+| `name` missing or blank                                                       | `name` = the id text                                                                                                                |
+| Any string field                                                              | Trimmed; blank becomes null                                                                                                         |
+| Wrong type (rating `"4.7"`, amenities `"trails"`)                             | Treated as missing (null or []); never coerced                                                                                      |
+| `location` missing, or lat/lng not finite or out of range (lat ±90, lng ±180) | `coordinates` = null; park stays in list and details; no marker                                                                     |
+| `location.address`                                                            | Trimmed string or null; shown verbatim, never append a city                                                                         |
+| `amenities`                                                                   | Readable labels: drop non-strings and blanks, trim, hyphens to spaces, capitalize the first letter (`dog-run` → `Dog run`); else [] |
+| `hours`                                                                       | Verbatim string or null                                                                                                             |
+| `images`                                                                      | Non-blank strings only; else []                                                                                                     |
+| `acreage`, `rating`                                                           | Finite number or null (0 is a value, not missing)                                                                                   |
+
+Fallback strings live in templates, never in the data, so "never invent values" holds at the data
+layer.
+
+### Display (ParkPanel)
+
+| Case                                    | Rule                                                                                                                                                                                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| description null                        | "No description available."                                                                                                                                                                                                     |
+| address null, coordinates present       | `40.6789, -73.9442` (numbers verbatim, comma and space)                                                                                                                                                                         |
+| address and coordinates both null       | "Location not available"                                                                                                                                                                                                        |
+| hours null / acreage null / rating null | Row hidden                                                                                                                                                                                                                      |
+| acreage                                 | `212 acres`                                                                                                                                                                                                                     |
+| rating                                  | Bare number (`4.7`); no scale, the data states none                                                                                                                                                                             |
+| amenities []                            | Section hidden                                                                                                                                                                                                                  |
+| images                                  | One frame showing the first image, alt `{name} photo`; when there are more, a caption under the frame: "and 1 more photo" / "and 2 more photos"                                                                                 |
+| image fails to load                     | Placeholder in the frame with visible text "No image available"                                                                                                                                                                 |
+| images []                               | One placeholder, no skeleton, no caption                                                                                                                                                                                        |
+| unknown id in the URL                   | "Park not found" heading plus a link to the list; only once loading is over and `error` is null (a load failure shows the error, never "not found")                                                                             |
+| list item text                          | Park name only                                                                                                                                                                                                                  |
+| h1 / document title                     | "Park Finder". The municipality is New York City (the sample's coordinates and addresses); the README says so. The UI names no city because the park names are invented and real borough labels would sit under fictional parks |
+
+### Styling
+
+Tokens live in `src/styles.css` on `:root`. No global classes. Components use `var()` in their own
+scoped stylesheets. Tertiary is the one accent color.
+
+```css
+--color-primary: #1e3d05; /* headings, brand chrome, default pin */
+--color-primary-dark: #082301; /* body text */
+--color-primary-light: #4e5809; /* subtle chrome, list dividers */
+--color-secondary: #41220c; /* labels (dt), secondary headings */
+--color-secondary-dark: #2d0d01;
+--color-secondary-light: #5b3011; /* muted text, captions */
+--color-tertiary: #2c4cd1; /* the accent: buttons, links, selected pin, focus ring */
+--color-surface: #ffffff;
+--color-surface-tint: color-mix(in srgb, var(--color-tertiary) 8%, white); /* selected row */
+--color-border: color-mix(in srgb, var(--color-primary) 20%, white);
+--focus-ring: 3px solid var(--color-tertiary);
+--font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+--space-1: 4px;
+--space-2: 8px;
+--space-3: 16px;
+--space-4: 24px;
+--radius: 8px;
+```
+
+All seven colors pass 4.5:1 on white (lowest: tertiary at 6.9:1); white on tertiary is 6.9:1.
+styles.css also holds `:focus-visible { outline: var(--focus-ring); outline-offset: 2px }`, the
+reduced-motion rule (`animation` and `transition` durations to 0.01ms under
+`prefers-reduced-motion: reduce`), and one base block
+(`html, body { margin: 0; font: 16px/1.5 var(--font); color: var(--color-primary-dark); background: var(--color-surface) }`).
+
+ParkMap is the one component with `encapsulation: ViewEncapsulation.None`, because Leaflet creates
+marker DOM outside Angular's view. Every rule in `park-map.css` is prefixed with `.park-map` (set
+with `host: { class: 'park-map' }`).
+
+Prettier uses the scaffold's `.prettierrc` (printWidth 100, singleQuote, angular HTML parser).
+
+### Architecture
+
+| File                            | Role                                                                                                                                                                       |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/app.ts` (+html/css)    | Root shell: `<header><h1>Park Finder</h1></header><router-outlet />`. Replaces the scaffold placeholder in slice 2.                                                        |
+| `src/app/app.routes.ts`         | `''` → `/parks`; one `UrlMatcher` route matching `parks` and `parks/:id` → `ParksPage`; `**` → `/parks`.                                                                   |
+| `src/app/app.config.ts`         | `provideHttpClient()`, `provideRouter(routes, withComponentInputBinding())`.                                                                                               |
+| `src/app/parks-page.ts`         | Routed page. `id = input<string>()`. Injects ParksService. Owns `<main>` (panel) and `<aside>` (map), handles the map's `select` with `router.navigate`, owns sheet state. |
+| `src/app/data/park.ts`          | `Park` type.                                                                                                                                                               |
+| `src/app/data/normalize.ts`     | `normalizePark(raw: unknown): Park \| null`, `normalizeParks(raw: unknown): Park[]`. Pure. Only ParksService imports it.                                                   |
+| `src/app/data/parks-service.ts` | `ParksService` (`providedIn: 'root'`), `HttpClient.get('/assets/parks.sample.json')` started in the constructor; signals `parks`, `loading`, `error`.                      |
+| `src/app/panel/park-panel.ts`   | `ParkPanel`: inputs `parks`, `loading`, `error`, `selectedId`; renders list or details; focus management.                                                                  |
+| `src/app/panel/park-image.ts`   | `ParkImage`: inputs `src: string \| null`, `alt`; `state` is a `linkedSignal` on `src`: loading / loaded / error, reset whenever `src` changes.                            |
+| `src/app/map/park-map.ts`       | `ParkMap`: inputs `parks`, `selectedId`, `centerOffset`; output `select`.                                                                                                  |
+
+Why one matcher route instead of two routes to the same component: Angular reuses a routed
+component only when the route config object is the same, so `parks` and `parks/:id` as two entries
+would destroy and recreate the page on every open and close, tearing down the map and the panel
+state (the remembered id that focus returns to); a single `UrlMatcher` keeps one config, so the
+page persists and only the `id` input changes. This does not preserve list scroll position by
+itself: the `@if` that swaps list and details destroys the `<ul>`. The list is brought back to the
+right place by focusing the restored link, since `focus()` scrolls the element into view; no
+scroll position is saved by hand.
+
+Every component: standalone, `ChangeDetectionStrategy.OnPush`, `inject()`, `input()` / `output()`,
+built-in control flow, template and styles in sibling `.html` / `.css` files like the scaffold.
+ParkPanel and ParkMap take data as inputs from the page and never inject ParksService, so their
+tests set inputs and `parks-page.spec.ts` is the one integration test.
+
+```ts
+export interface Park {
+  id: string;
+  name: string;
+  description: string | null;
+  coordinates: { lat: number; lng: number } | null;
+  address: string | null;
+  amenities: string[];
+  hours: string | null;
+  images: string[];
+  acreage: number | null;
+  rating: number | null;
+}
+```
+
+## Slice 1: data and tokens [sonnet]
+
+Files: `src/app/data/park.ts`, `normalize.ts`, `normalize.spec.ts`, `parks-service.ts`,
+`parks-service.spec.ts`; `src/app/app.config.ts` (add `provideHttpClient()`); `src/styles.css`.
+
+Tests first (`normalize.spec.ts` imports `public/assets/parks.sample.json` directly; this
+type-checks with the current tsconfig):
+
+- Highland Dog Park → `address` null, `coordinates` `{ lat: 40.6789, lng: -73.9442 }`.
+- Old Mill Botanical Garden → `description` null; every other field present.
+- Cedar Hill Nature Preserve → `rating` null, `images` [].
+- Whole sample → 12 parks in file order, all with coordinates; Prospect Park amenities →
+  `['Playground', 'Dog run', 'Trails', 'Restrooms', 'Parking', 'Lake', 'Picnic areas']`.
+- Hand-written edge rows: no id → null; blank name → name is the id; location missing →
+  coordinates null, park kept; lat 95 → coordinates null; rating `"4.7"` → null; rating 0 → 0;
+  images `[null, '', ' a.jpg ']` → `['a.jpg']`; amenities null → []; description `'   '` → null;
+  duplicate id → one park; non-array input → throws.
+- `parks-service.spec.ts` with `provideHttpClient()` and `provideHttpClientTesting()`: `loading`
+  true before flush; flushing the sample → 12 parks, loading false, error null; HTTP 500 → parks
+  [], error "Could not load parks."; non-array body → same error.
+
+Then implement normalize.ts, the service, and styles.css (tokens, focus ring, reduced motion, base
+block). Show the failing run, then the passing run. `npx ng build` must still pass (the scaffold
+template is untouched until slice 2).
+
+Done when: tests green, build clean, Prettier clean, diff shown, Tom says commit.
+Commit: `feat(data): add Park type, normalize, and ParksService with style tokens`.
+
+## Slice 2: ParkPanel, routes, focus [opus]
+
+Files: `src/app/panel/park-panel.*`, `park-image.*`, `src/app/parks-page.*`, `src/app/app.*`
+(replace scaffold template, css, spec), `app.routes.ts`, `app.config.ts`
+(`withComponentInputBinding()`), `src/index.html` (title "Park Finder").
+
+Behavior:
+
+- List mode (`selectedId` undefined): `<nav aria-labelledby="parks-heading">` with
+  `<h2 id="parks-heading">Parks</h2>`, then `role="status"` "Loading parks…" / `role="alert"`
+  error / "No parks to show." / `<ul>` of `<li><a [routerLink]="['/parks', park.id]">{{ park.name }}</a></li>`
+  with `@for … track park.id`.
+- Details mode: `<article>` with `<a routerLink="/parks">Back to parks</a>` (tertiary button
+  style; a link because it navigates), `<h2 tabindex="-1">{{ name }}</h2>`, a `<dl>` (Location,
+  Hours, Size, Rating per the display rules), `<h3>Description</h3><p>`, `<h3>Amenities</h3><ul>`
+  when non-empty, `<h3>Photo</h3>` with one `<app-park-image [src]="park.images[0] ?? null">`
+  (the component shows the placeholder when `src` is null) and, when `images.length > 1`, a
+  `<p>` caption "and N more photo(s)" in muted text.
+- Not found: `<h2 tabindex="-1">Park not found</h2>` plus the back link. Loading with an id shows
+  the loading status, not "not found". An `error` with an id shows the `role="alert"` error, not
+  "not found" (error takes precedence; see the Display table).
+- Focus: an `afterRenderEffect` (not a plain `effect`, so the DOM is ready) focuses the details
+  `h2` whenever the details view opens (including deep links and switching parks); the panel
+  remembers the last opened id and, once the list has rendered after returning, focuses that link
+  (fallback: the "Parks" heading, which gets `tabindex="-1"`). The effect tracks only `selectedId`
+  and the `viewChild` / `viewChildren` signals and keeps the last id it acted on in a plain field,
+  so image loads, sheet resizes, or any other signal never re-steal focus. No `setTimeout`.
+- `ParkImage`: `src = input.required<string | null>()`,
+  `state = linkedSignal<'loading' | 'loaded' | 'error'>(() => (this.src() === null ? 'error' : 'loading'))`,
+  so every new `src` starts over at loading and a null `src` is the placeholder at once (the
+  details `<article>` is reused when switching parks from the map, so a plain `signal` would carry
+  a stale loaded/error state into the next park). Skeleton block (`aria-hidden="true"`, shimmer
+  animation, static under reduced motion via the global rule) while loading; `<img (load) (error)>`
+  writes the signal; placeholder with visible text "No image available" on error. The frame keeps
+  a fixed aspect ratio so layout does not jump.
+- ParksPage: `<main><app-park-panel [parks]="parks()" [loading]="loading()" [error]="error()" [selectedId]="id()" /></main>`.
+  Plain single column for now.
+- App: one `h1` "Park Finder"; heading order h1 → h2 → h3.
+
+Tests first (`park-panel.spec.ts` sets inputs with `fixture.componentRef.setInput`, parks from
+`normalizeParks(sample)`): 12 links with the right hrefs; Highland shows `40.6789, -73.9442` and
+no address; Old Mill shows "No description available."; Cedar Hill has no Rating row, one
+placeholder, no skeleton, no caption; Prospect Park has one frame in loading state and the caption
+"and 1 more photo", `error` on the img → placeholder, `load` → image visible; Riverside Commons
+(one image) has no caption; Highland amenities render as `Dog run`, `Restrooms`, `Parking`,
+`Water fountain`; open → `document.activeElement` is the h2; back → activeElement is the link for
+that id; unknown id → "Park not found"; error with an id → the error, not "Park not found";
+loading, error, and empty messages. `park-image.spec.ts`: `error` on the img then a new `src` →
+back to loading; `src` null → placeholder with no skeleton, then a string `src` → loading.
+`parks-page.spec.ts` with `provideRouter(routes, withComponentInputBinding())` (the feature is
+required or `id` never reaches the input), `RouterTestingHarness`, `HttpTestingController`: `/`
+redirects to `/parks` and lists 12 links; `/parks/highland-dog-park` shows the details after
+flush; list → park A → park B → list via the harness shows each heading in turn and ends with the
+list focused on park B's link; HTTP 500 while on a details URL shows the error, not "Park not
+found". Browser Back and Forward are part of the browser walk below. `app.spec.ts`: exactly one h1
+with "Park Finder".
+
+Done when: tests green, build clean, keyboard walk in the browser verified with the Playwright MCP
+(Tab to the first link, Enter, focus on the heading, Shift+Tab to Back, Enter, focus back on the
+link), diff shown, Tom says commit.
+Commit: `feat(panel): add ParkPanel list and details with routes and focus`.
+
+## Slice 3: Leaflet map [opus]
+
+Files: `src/app/map/park-map.*`, `parks-page.*` (add `<aside aria-label="Map">`).
+
+Behavior:
+
+- `import { map, tileLayer, marker, divIcon, latLngBounds } from 'leaflet'`. Map created in
+  `afterNextRender`; OSM tiles `https://tile.openstreetmap.org/{z}/{x}/{y}.png`, `maxZoom: 19`,
+  attribution `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`.
+  The map container gets `aria-label="Map of parks"`. No key needed; note the OSM tile usage
+  policy in the README. The attribution control is moved to the top right
+  (`map.attributionControl.setPosition('topright')`) so the mobile bottom sheet of slice 4 never
+  covers it; OSM requires the attribution to stay visible.
+- One marker per park with coordinates, built once when `parks()` arrives, kept in a
+  `Map<string, Marker>`. Options: `icon` (shared `divIcon`, `className: 'park-pin'`, inline SVG
+  pin with `fill="currentColor"`, `iconSize [28, 40]`, `iconAnchor [14, 40]`,
+  `tooltipAnchor [0, -36]`), `title: name`, `alt: name`, `keyboard: true`.
+  `bindTooltip(label, { direction: 'top' })` where `label` is a `<span>` element with
+  `textContent = name` (Leaflet 1.9 treats a string tooltip as HTML, so a name is never passed as
+  a string); it opens on hover and on focus. After `addTo`, set
+  `aria-label = name` on `getElement()`. `on('click', …)` emits `select` with the id (Enter fires
+  click in Leaflet); the page navigates, the route updates the inputs, signals re-render.
+- Selection `effect` on `selectedId()` and `centerOffset()`: toggle class `is-selected` and
+  `aria-current="true"` on the old and new marker elements, `setZIndexOffset(1000)` on the
+  selected one. Never `setIcon`, never remove or re-add. Selected pin: `color: var(--color-tertiary)`
+  and `svg { transform: scale(1.3); transform-origin: 50% 100% }` (scale the inner svg, not the
+  marker element, because Leaflet positions the marker with an inline `transform`). Default pin
+  `color: var(--color-primary)`.
+- Camera: selected park with coordinates → `setView(shifted, 15, { animate })` where
+  `shifted = unproject(project(latlng, 15).add([0, centerOffset / 2]), 15)`. No selection →
+  `fitBounds(all, { padding: [24, 24], paddingBottomRight: [24, 24 + centerOffset], animate })`.
+  The same routine runs when markers are first built (deep link → zoom 15, otherwise fit). Skip
+  when there are no markers.
+- `centerOffset = input(0)`: one number, pixels at the bottom of the map covered by UI (the
+  mobile sheet).
+- `animate = !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)`,
+  read at each camera move.
+- `ResizeObserver` on the host (guarded with `typeof ResizeObserver !== 'undefined'`) →
+  `invalidateSize()`; also once after creation. `DestroyRef.onDestroy` → `map.remove()` and
+  disconnect.
+- `park-map.css` (`ViewEncapsulation.None`, every rule prefixed `.park-map`): pin colors and
+  selected scale, `.park-map .leaflet-container { font-size: 1rem }` so attribution and tooltips
+  are 16px, map height.
+- Page layout for this slice: panel then map, map `height: 60vh`; the real layout is slice 4.
+- Nothing depends on the map: list, details, and URL work with the map component removed.
+
+Tests first (`park-map.spec.ts`; Leaflet runs in jsdom with a zero-size container): 12
+`.park-pin` elements for the sample, each with `role="button"`, `tabindex="0"`, `title` and
+`aria-label` equal to the name; an edge park named `<b>Bold</b> Park` shows a tooltip whose
+`textContent` is that literal string and contains no `<b>` element; an edge park without
+coordinates gets no pin; `selectedId` moves
+`is-selected` between pins and the 12 pin nodes are the same objects before and after (never
+re-added); click on a pin emits `select` with the id; `keypress` keyCode 13 emits; dispatching
+`focus` on a pin shows a `.leaflet-tooltip` with the name. Camera behavior (zoom 15, fit bounds,
+offset, animate false) is checked in the browser and recorded in the README.
+
+Done when: tests green, build clean, browser check (markers, hover and focus tooltips, Tab through
+markers, Enter opens details, list selection zooms, back fits bounds, reduced-motion emulation
+shows no pan animation), diff shown, Tom says commit.
+Commit: `feat(map): add Leaflet map with keyboard-accessible markers`.
+
+## Slice 4: responsive layout and bottom sheet [sonnet]
+
+Files: `parks-page.*` (layout, sheet state, offset), `park-panel.css`, `app.css`.
+
+Behavior:
+
+- DOM order is header, `<main>` (panel), `<aside>` (map) at every width, so keyboard users reach
+  the list first.
+- 768px and up: grid, panel column `minmax(320px, 400px)` scrolling, map fills the rest, full
+  viewport height. `centerOffset` 0.
+- Under 768px: map fills the viewport under the header. `<main>` is a fixed bottom sheet with
+  `height: 40dvh` (peek: sheet bar, "Parks" heading, first items) or `85dvh` (expanded), scrolling
+  inside, height transition (disabled by the reduced-motion rule). The sheet bar holds one
+  `<button type="button" aria-expanded aria-controls="sheet">` with visible text "Show more" /
+  "Show less". No drag gestures.
+- Sheet state: `linkedSignal({ source: id, computation: (id) => id !== undefined })`: selecting a
+  park expands, returning to the list goes back to peek, the button overrides until the next
+  navigation. A `(focusin)` handler on the `<aside>` sets the sheet back to peek when `isMobile()`,
+  so a marker reached by Tab is never focused behind the expanded sheet (the focus ring must stay
+  visible). Expanded is 85dvh on purpose: it is for reading details, and the map is reachable
+  again by "Show less", by the back link, or by tabbing into it.
+- `centerOffset = computed(() => (isMobile() ? sheetHeight() : 0))`; `sheetHeight` from a
+  guarded `ResizeObserver` on the sheet; `isMobile` from a guarded
+  `matchMedia('(max-width: 767.98px)')` with a `change` listener (default false). Keep 768 in sync
+  between CSS and TS with a comment.
+- Text 16px or larger everywhere (Leaflet override from slice 3), contrast 4.5:1 or better
+  (tokens verified), every control labelled, focus ring visible inside the sheet (padding inside
+  the scroll container so `overflow` never clips outlines).
+
+Tests first (`parks-page.spec.ts` additions, `matchMedia` stubbed to report mobile): the toggle
+button starts `aria-expanded="false"`, click → `"true"`; navigating to a park → `"true"`; back →
+`"false"`; expanded then `focusin` dispatched inside the `aside` → `"false"`; `main` precedes
+`aside` in the DOM. Browser checks with the Playwright MCP at 375×667 and 1280×800: no element
+with computed font-size below 16px (`browser_evaluate`), focus ring visible on a link inside the
+sheet, pin and tooltip visible above the peek sheet after selection, attribution visible at
+375×667 with the sheet expanded, Tab from the sheet onto a marker collapses the sheet and shows
+the ring.
+
+Done when: tests green, build clean, browser checks done, diff shown, Tom says commit.
+Commit: `feat(layout): add desktop columns and mobile bottom sheet`.
+
+## Model routing
+
+Set at 01:40 EDT on 2026-10-08. Reason: pace.
+
+- This session, on Fable, oversees everything. It owns this file, reviews every diff and test
+  output, triages the Codex findings, and never writes slice code itself.
+- Implementation runs in subagents: Opus for the slices with the most moving parts (slice 2,
+  panel with focus management and the image frame; slice 3, Leaflet in a zoneless app), Sonnet
+  for the rest (slice 1, data layer and tests; slice 4, layout and polish).
+- Pass the model explicitly in every subagent call. Never rely on a default.
+- Each subagent gets CLAUDE.md, this file, and the slice prompt, builds the slice, runs the tests
+  and Prettier, and reports back the diff and test output.
+- After each subagent returns, Fable runs `git diff` and `npx ng test --watch=false` itself and
+  shows Tom the real output. The subagent's summary is never relayed as the review. Fable waits
+  for Tom's go before committing.
+- One subagent per slice, no model switch inside a slice.
+- Every diff review, commit decision, and scope cut is [fable].
+- Debugging where the cause is not obvious after one look comes back to [fable] to decide, and
+  the escalation is written in this file when it happens.
+- Review passes after slice 4: Pass A is Tom's own read (no tag). Pass B is an external Codex
+  review; triage of its findings is [fable]. Pass C is browser verification [sonnet].
+- README: draft [sonnet], final edit is Tom's.
+
+## Wrap-up (after slice 4)
+
+1. Pass A: Tom's own read of the code (no tag).
+2. Pass B: external Codex review. [fable] triages the findings and writes the accepted ones into
+   this file as follow-up items; fixes, if any, go to a subagent per the slice tag.
+3. Pass C: [sonnet] browser verification with the Playwright MCP (keyboard walk, markers,
+   375×667 and 1280×800, reduced motion), reported as screenshots and findings; [fable] reviews.
+4. README.md draft [sonnet], final edit by Tom: run steps (`nvm use`, `npm ci`, `npm start`,
+   `npm test`), what works, what was left out (see Deferred), decisions (link this file), data note
+   (the sample uses New York City coordinates with sample park names, so real borough labels appear
+   under invented parks; Cedar Hill sits on the generic NYC point; no changes were made to the
+   sample), known issues (example.com images never load so every frame shows the placeholder; OSM
+   tile policy for public use; no backend), how it was checked (tests, keyboard walk, Playwright
+   checks, reduced motion, mobile viewport), time spent (both columns of the Time log: focused
+   minutes and wall-clock, with a sentence that Tom stepped away from the computer during
+   sessions so wall-clock overstates the work), the municipality decision (New York City from the
+   data, not named in the UI), next steps before public use.
+5. [fable] Export every `.jsonl` in `~/.claude/projects/-Users-tom-park-finder/` unredacted into
+   an `ai-logs/` folder next to the source in the zip (not committed).
+6. [fable] Zip: `git archive` of main plus `ai-logs/`.
+
+## Deferred (not scope; list in the README)
+
+- Photo gallery: only the first image is shown; the caption reports how many more exist.
+- Search, filters, and current location (optional in the brief).
+- Retry on load failure.
+
+## Plan review (session 3)
+
+Tom had Codex review this plan after slice 1. Decisions on its seven points, all written into the
+sections above:
+
+1. Municipality: New York City, from the data, stated in the README and not in the UI (Display
+   table). Time cap: Tom's call; the Time log now separates focused minutes from wall-clock.
+2. Bottom sheet: attribution moved to the top right (slice 3) and `focusin` on the map collapses
+   the sheet (slice 4). Expanded height stays 85dvh.
+3. ParkImage: `state` is a `linkedSignal` on `src`, null `src` is the placeholder, two tests added.
+4. Focus: `afterRenderEffect`, "Parks" heading gets `tabindex="-1"`, the effect acts once per id.
+5. Scroll: the matcher-route rationale no longer claims scroll preservation; `focus()` on the
+   restored link scrolls it into view, and the browser walk checks a park near the bottom.
+6. Integration test: `withComponentInputBinding()` in the spec, A → B → list and error-on-details
+   cases added, error takes precedence over "not found".
+7. Tooltips: an element with `textContent`, never a string; a markup-name test added.
+
+## Time log
+
+The brief asks for approximate time spent. Focused minutes are what the README reports as time
+spent; wall-clock is session start to end. They differ because Tom stepped away from the computer
+during sessions, and the README says so.
+
+| Session | Work                   | Focused minutes | Wall-clock        |
+| ------- | ---------------------- | --------------- | ----------------- |
+| 1       | Setup, scaffold, grill |                 | ~45 (23:45–00:30) |
+| 2       | This plan              |                 | ~60 (00:35–01:45) |
+| 3       | Slice 1, plan review   |                 | ~30 (01:45–02:15) |
+| 4       | Slice 2                |                 | ~15 (02:15–02:30) |
+| 5       | Slice 3                |                 | ~20 (02:15–02:35) |
+| 6       | Slice 4                |                 | ~15 (02:36–02:50) |
+| 7       | Wrap-up                |                 |                   |
