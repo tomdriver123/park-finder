@@ -19,15 +19,15 @@ Angular 22, modern patterns only. Standalone components, no NgModules. State in 
 
 Data loads through one ParksService using HttpClient, exposing parks, loading, and error as signals. ParksService is the only caller of normalize.ts. Components never read raw JSON.
 
-Folders are src/app/data, src/app/map, src/app/panel, plus app.routes.ts. Flat. No barrel files, no shared folder.
+Folders are src/app/data, src/app/map, src/app/panel, plus app.ts, app.routes.ts, and the routed parks-page.ts at the root. Flat. No barrel files, no shared folder.
 
-Plain CSS with custom properties, one accent color, system font stack. No Angular Material, no Tailwind, no UI kit. Component styles stay scoped. The global stylesheet holds tokens, the focus ring, and reduced motion rules only.
+Plain CSS with custom properties, system font stack. The palette is seven tokens in styles.css (primary, secondary, each with dark and light, plus tertiary); tertiary is the one accent, used for buttons, links, selected states, and the focus ring. No global classes. No Angular Material, no Tailwind, no UI kit. Component styles stay scoped, with one exception: ParkMap uses ViewEncapsulation.None with every rule prefixed .park-map, because Leaflet creates marker DOM outside Angular's view. The global stylesheet holds tokens, the focus ring, reduced motion rules, and one html/body base block only.
 
-Native elements first. a for navigation, button for actions, never a click handler on a div. One h1, headings in order, nav, main, and aside landmarks. ARIA only where a native element cannot do the job. Leaflet markers get alt and title.
+Native elements first. a for navigation, button for actions, never a click handler on a div. One h1, headings in order, nav, main, and aside landmarks. ARIA only where a native element cannot do the job. Leaflet markers get title, alt, and an aria-label (alt is ignored on a divIcon).
 
 Tests run on Vitest with TestBed. Test behavior through the public interface. Expected values come from the rules in this file, not from the code under test. Do not mock internal collaborators. Fixtures are the real sample file plus hand written edge rows.
 
-Prettier defaults, run before each commit. Conventional commit messages. Keep the Co-Authored-By trailer. No any. No new dependencies without asking.
+Prettier with the scaffold's .prettierrc (printWidth 100, singleQuote), run before each commit. Conventional commit messages. Keep the Co-Authored-By trailer. No any. No new dependencies without asking.
 
 ## Working agreement
 Work on main. When a slice is done, show me the diff and the test output and wait. I review, then I say commit. One commit per slice. If a requirement is unclear, ask before building. Do not add features I did not ask for.
