@@ -741,4 +741,13 @@ during sessions, and the README says so.
 | 4       | Slice 2                |                 | ~15 (02:15–02:30) |
 | 5       | Slice 3                |                 | ~20 (02:15–02:35) |
 | 6       | Slice 4                |                 | ~15 (02:36–02:50) |
-| 7       | Slices 5–7, wrap-up    |                 | (03:36–)          |
+| 7       | Session 7 plan         |                 | ~15 (03:18–03:33) |
+| 8       | Slices 5–8             |                 | ~40 (03:34–04:13) |
+| 9       | Wrap-up, docs, README  |                 | ~60 (03:45–04:45) |
+
+Sessions 4 and 5 ran in parallel, as did 8 and 9. Summed session time is about 4.5 hours; the
+elapsed window is 23:45 to about 04:45. `docs/transcripts/` numbers the eleven Claude Code
+session files chronologically, so its numbers differ from this table: transcripts 4 and 5 are
+two aborted one-minute starts (handoff-3 and handoff-4 opened, then the sessions restarted),
+transcript 6 is session 4, 7 is session 5, 8 is session 6, 9 is session 7, 10 is session 8, and
+11 is session 9.
