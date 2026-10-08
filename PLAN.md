@@ -10,8 +10,12 @@ out of scope. Deferred items at the end are known gaps, not scope.
 Steps are tagged with who runs them: [fable] this overseeing session, [opus] or [sonnet] a
 subagent with that model passed explicitly. See Model routing below.
 
-1. [fable] Read, in order: the newest `handoffs/handoff-N.md`, CLAUDE.md,
-   `docs/local-parks-candidate.pdf`, `public/assets/parks.sample.json`, this file.
+1. [fable] Read, in order: the handoff Tom names (normally the newest `handoffs/handoff-N.md`),
+   CLAUDE.md, `docs/local-parks-candidate.pdf`, `public/assets/parks.sample.json`, this file.
+   Sessions 4 and 5 run in parallel (decided in session 3): slice 2 on main from handoff-3, slice
+   3 in the worktree `../park-finder-slice-3` on branch `slice-3` from handoff-4. Slice 2 commits
+   first; slice 3 rebases, wires the map into parks-page, and fast-forwards main. Handoff numbers
+   for those sessions are fixed in the handoffs (5 for slice 2, 6 for slice 3).
 2. [all] Every shell command starts with
    `export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 24.21.0 >/dev/null;`
    Use `npx ng`, never bare `ng`.
@@ -58,21 +62,21 @@ layer.
 
 ### Display (ParkPanel)
 
-| Case                                    | Rule                                                                                                                                            |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| description null                        | "No description available."                                                                                                                     |
-| address null, coordinates present       | `40.6789, -73.9442` (numbers verbatim, comma and space)                                                                                         |
-| address and coordinates both null       | "Location not available"                                                                                                                        |
-| hours null / acreage null / rating null | Row hidden                                                                                                                                      |
-| acreage                                 | `212 acres`                                                                                                                                     |
-| rating                                  | Bare number (`4.7`); no scale, the data states none                                                                                             |
-| amenities []                            | Section hidden                                                                                                                                  |
-| images                                  | One frame showing the first image, alt `{name} photo`; when there are more, a caption under the frame: "and 1 more photo" / "and 2 more photos" |
-| image fails to load                     | Placeholder in the frame with visible text "No image available"                                                                                 |
-| images []                               | One placeholder, no skeleton, no caption                                                                                                        |
-| unknown id in the URL                   | "Park not found" heading plus a link to the list                                                                                                |
-| list item text                          | Park name only                                                                                                                                  |
-| h1 / document title                     | "Park Finder"; no city or municipality named anywhere in the UI                                                                                 |
+| Case                                    | Rule                                                                                                                                                                                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| description null                        | "No description available."                                                                                                                                                                                                     |
+| address null, coordinates present       | `40.6789, -73.9442` (numbers verbatim, comma and space)                                                                                                                                                                         |
+| address and coordinates both null       | "Location not available"                                                                                                                                                                                                        |
+| hours null / acreage null / rating null | Row hidden                                                                                                                                                                                                                      |
+| acreage                                 | `212 acres`                                                                                                                                                                                                                     |
+| rating                                  | Bare number (`4.7`); no scale, the data states none                                                                                                                                                                             |
+| amenities []                            | Section hidden                                                                                                                                                                                                                  |
+| images                                  | One frame showing the first image, alt `{name} photo`; when there are more, a caption under the frame: "and 1 more photo" / "and 2 more photos"                                                                                 |
+| image fails to load                     | Placeholder in the frame with visible text "No image available"                                                                                                                                                                 |
+| images []                               | One placeholder, no skeleton, no caption                                                                                                                                                                                        |
+| unknown id in the URL                   | "Park not found" heading plus a link to the list; only once loading is over and `error` is null (a load failure shows the error, never "not found")                                                                             |
+| list item text                          | Park name only                                                                                                                                                                                                                  |
+| h1 / document title                     | "Park Finder". The municipality is New York City (the sample's coordinates and addresses); the README says so. The UI names no city because the park names are invented and real borough labels would sit under fictional parks |
 
 ### Styling
 
@@ -123,14 +127,17 @@ Prettier uses the scaffold's `.prettierrc` (printWidth 100, singleQuote, angular
 | `src/app/data/normalize.ts`     | `normalizePark(raw: unknown): Park \| null`, `normalizeParks(raw: unknown): Park[]`. Pure. Only ParksService imports it.                                                   |
 | `src/app/data/parks-service.ts` | `ParksService` (`providedIn: 'root'`), `HttpClient.get('/assets/parks.sample.json')` started in the constructor; signals `parks`, `loading`, `error`.                      |
 | `src/app/panel/park-panel.ts`   | `ParkPanel`: inputs `parks`, `loading`, `error`, `selectedId`; renders list or details; focus management.                                                                  |
-| `src/app/panel/park-image.ts`   | `ParkImage`: inputs `src`, `alt`; `state` signal loading / loaded / error.                                                                                                 |
+| `src/app/panel/park-image.ts`   | `ParkImage`: inputs `src: string \| null`, `alt`; `state` is a `linkedSignal` on `src`: loading / loaded / error, reset whenever `src` changes.                            |
 | `src/app/map/park-map.ts`       | `ParkMap`: inputs `parks`, `selectedId`, `centerOffset`; output `select`.                                                                                                  |
 
 Why one matcher route instead of two routes to the same component: Angular reuses a routed
 component only when the route config object is the same, so `parks` and `parks/:id` as two entries
-would destroy and recreate the page on every open and close, losing list scroll position and the
-element that focus must return to; a single `UrlMatcher` keeps one config, so the page persists
-and only the `id` input changes.
+would destroy and recreate the page on every open and close, tearing down the map and the panel
+state (the remembered id that focus returns to); a single `UrlMatcher` keeps one config, so the
+page persists and only the `id` input changes. This does not preserve list scroll position by
+itself: the `@if` that swaps list and details destroys the `<ul>`. The list is brought back to the
+right place by focusing the restored link, since `focus()` scrolls the element into view; no
+scroll position is saved by hand.
 
 Every component: standalone, `ChangeDetectionStrategy.OnPush`, `inject()`, `input()` / `output()`,
 built-in control flow, template and styles in sibling `.html` / `.css` files like the scaffold.
@@ -195,19 +202,26 @@ Behavior:
 - Details mode: `<article>` with `<a routerLink="/parks">Back to parks</a>` (tertiary button
   style; a link because it navigates), `<h2 tabindex="-1">{{ name }}</h2>`, a `<dl>` (Location,
   Hours, Size, Rating per the display rules), `<h3>Description</h3><p>`, `<h3>Amenities</h3><ul>`
-  when non-empty, `<h3>Photo</h3>` with one `<app-park-image>` for the first image (or the
-  placeholder when there are none) and, when `images.length > 1`, a `<p>` caption "and N more
-  photo(s)" in muted text.
+  when non-empty, `<h3>Photo</h3>` with one `<app-park-image [src]="park.images[0] ?? null">`
+  (the component shows the placeholder when `src` is null) and, when `images.length > 1`, a
+  `<p>` caption "and N more photo(s)" in muted text.
 - Not found: `<h2 tabindex="-1">Park not found</h2>` plus the back link. Loading with an id shows
-  the loading status, not "not found".
-- Focus: an `effect` focuses the details `h2` whenever the details view opens (including deep
-  links and switching parks); the panel remembers the last opened id and, once the list has
-  rendered after returning, focuses that link (fallback: the "Parks" heading). Use `viewChild` and
-  `viewChildren` signals, no `setTimeout`.
-- `ParkImage`: `state = signal<'loading' | 'loaded' | 'error'>('loading')`; skeleton block
-  (`aria-hidden="true"`, shimmer animation, static under reduced motion via the global rule) while
-  loading; `<img (load) (error)>` writes the signal; placeholder with visible text "No image
-  available" on error. The frame keeps a fixed aspect ratio so layout does not jump.
+  the loading status, not "not found". An `error` with an id shows the `role="alert"` error, not
+  "not found" (error takes precedence; see the Display table).
+- Focus: an `afterRenderEffect` (not a plain `effect`, so the DOM is ready) focuses the details
+  `h2` whenever the details view opens (including deep links and switching parks); the panel
+  remembers the last opened id and, once the list has rendered after returning, focuses that link
+  (fallback: the "Parks" heading, which gets `tabindex="-1"`). The effect tracks only `selectedId`
+  and the `viewChild` / `viewChildren` signals and keeps the last id it acted on in a plain field,
+  so image loads, sheet resizes, or any other signal never re-steal focus. No `setTimeout`.
+- `ParkImage`: `src = input.required<string | null>()`,
+  `state = linkedSignal<'loading' | 'loaded' | 'error'>(() => (this.src() === null ? 'error' : 'loading'))`,
+  so every new `src` starts over at loading and a null `src` is the placeholder at once (the
+  details `<article>` is reused when switching parks from the map, so a plain `signal` would carry
+  a stale loaded/error state into the next park). Skeleton block (`aria-hidden="true"`, shimmer
+  animation, static under reduced motion via the global rule) while loading; `<img (load) (error)>`
+  writes the signal; placeholder with visible text "No image available" on error. The frame keeps
+  a fixed aspect ratio so layout does not jump.
 - ParksPage: `<main><app-park-panel [parks]="parks()" [loading]="loading()" [error]="error()" [selectedId]="id()" /></main>`.
   Plain single column for now.
 - App: one `h1` "Park Finder"; heading order h1 → h2 → h3.
@@ -219,10 +233,16 @@ placeholder, no skeleton, no caption; Prospect Park has one frame in loading sta
 "and 1 more photo", `error` on the img → placeholder, `load` → image visible; Riverside Commons
 (one image) has no caption; Highland amenities render as `Dog run`, `Restrooms`, `Parking`,
 `Water fountain`; open → `document.activeElement` is the h2; back → activeElement is the link for
-that id; unknown id → "Park not found"; loading, error, and empty messages.
-`parks-page.spec.ts` with `provideRouter(routes)`, `RouterTestingHarness`, `HttpTestingController`:
-`/` redirects to `/parks` and lists 12 links; `/parks/highland-dog-park` shows the details after
-flush. `app.spec.ts`: exactly one h1 with "Park Finder".
+that id; unknown id → "Park not found"; error with an id → the error, not "Park not found";
+loading, error, and empty messages. `park-image.spec.ts`: `error` on the img then a new `src` →
+back to loading; `src` null → placeholder with no skeleton, then a string `src` → loading.
+`parks-page.spec.ts` with `provideRouter(routes, withComponentInputBinding())` (the feature is
+required or `id` never reaches the input), `RouterTestingHarness`, `HttpTestingController`: `/`
+redirects to `/parks` and lists 12 links; `/parks/highland-dog-park` shows the details after
+flush; list → park A → park B → list via the harness shows each heading in turn and ends with the
+list focused on park B's link; HTTP 500 while on a details URL shows the error, not "Park not
+found". Browser Back and Forward are part of the browser walk below. `app.spec.ts`: exactly one h1
+with "Park Finder".
 
 Done when: tests green, build clean, keyboard walk in the browser verified with the Playwright MCP
 (Tab to the first link, Enter, focus on the heading, Shift+Tab to Back, Enter, focus back on the
@@ -239,12 +259,16 @@ Behavior:
   `afterNextRender`; OSM tiles `https://tile.openstreetmap.org/{z}/{x}/{y}.png`, `maxZoom: 19`,
   attribution `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`.
   The map container gets `aria-label="Map of parks"`. No key needed; note the OSM tile usage
-  policy in the README.
+  policy in the README. The attribution control is moved to the top right
+  (`map.attributionControl.setPosition('topright')`) so the mobile bottom sheet of slice 4 never
+  covers it; OSM requires the attribution to stay visible.
 - One marker per park with coordinates, built once when `parks()` arrives, kept in a
   `Map<string, Marker>`. Options: `icon` (shared `divIcon`, `className: 'park-pin'`, inline SVG
   pin with `fill="currentColor"`, `iconSize [28, 40]`, `iconAnchor [14, 40]`,
   `tooltipAnchor [0, -36]`), `title: name`, `alt: name`, `keyboard: true`.
-  `bindTooltip(name, { direction: 'top' })` opens on hover and on focus. After `addTo`, set
+  `bindTooltip(label, { direction: 'top' })` where `label` is a `<span>` element with
+  `textContent = name` (Leaflet 1.9 treats a string tooltip as HTML, so a name is never passed as
+  a string); it opens on hover and on focus. After `addTo`, set
   `aria-label = name` on `getElement()`. `on('click', …)` emits `select` with the id (Enter fires
   click in Leaflet); the page navigates, the route updates the inputs, signals re-render.
 - Selection `effect` on `selectedId()` and `centerOffset()`: toggle class `is-selected` and
@@ -273,7 +297,9 @@ Behavior:
 
 Tests first (`park-map.spec.ts`; Leaflet runs in jsdom with a zero-size container): 12
 `.park-pin` elements for the sample, each with `role="button"`, `tabindex="0"`, `title` and
-`aria-label` equal to the name; an edge park without coordinates gets no pin; `selectedId` moves
+`aria-label` equal to the name; an edge park named `<b>Bold</b> Park` shows a tooltip whose
+`textContent` is that literal string and contains no `<b>` element; an edge park without
+coordinates gets no pin; `selectedId` moves
 `is-selected` between pins and the 12 pin nodes are the same objects before and after (never
 re-added); click on a pin emits `select` with the id; `keypress` keyCode 13 emits; dispatching
 `focus` on a pin shows a `.leaflet-tooltip` with the name. Camera behavior (zoom 15, fit bounds,
@@ -301,7 +327,10 @@ Behavior:
   "Show less". No drag gestures.
 - Sheet state: `linkedSignal({ source: id, computation: (id) => id !== undefined })`: selecting a
   park expands, returning to the list goes back to peek, the button overrides until the next
-  navigation.
+  navigation. A `(focusin)` handler on the `<aside>` sets the sheet back to peek when `isMobile()`,
+  so a marker reached by Tab is never focused behind the expanded sheet (the focus ring must stay
+  visible). Expanded is 85dvh on purpose: it is for reading details, and the map is reachable
+  again by "Show less", by the back link, or by tabbing into it.
 - `centerOffset = computed(() => (isMobile() ? sheetHeight() : 0))`; `sheetHeight` from a
   guarded `ResizeObserver` on the sheet; `isMobile` from a guarded
   `matchMedia('(max-width: 767.98px)')` with a `change` listener (default false). Keep 768 in sync
@@ -312,9 +341,12 @@ Behavior:
 
 Tests first (`parks-page.spec.ts` additions, `matchMedia` stubbed to report mobile): the toggle
 button starts `aria-expanded="false"`, click → `"true"`; navigating to a park → `"true"`; back →
-`"false"`; `main` precedes `aside` in the DOM. Browser checks with the Playwright MCP at 375×667
-and 1280×800: no element with computed font-size below 16px (`browser_evaluate`), focus ring
-visible on a link inside the sheet, pin visible above the sheet after selection.
+`"false"`; expanded then `focusin` dispatched inside the `aside` → `"false"`; `main` precedes
+`aside` in the DOM. Browser checks with the Playwright MCP at 375×667 and 1280×800: no element
+with computed font-size below 16px (`browser_evaluate`), focus ring visible on a link inside the
+sheet, pin and tooltip visible above the peek sheet after selection, attribution visible at
+375×667 with the sheet expanded, Tab from the sheet onto a marker collapses the sheet and shows
+the ring.
 
 Done when: tests green, build clean, browser checks done, diff shown, Tom says commit.
 Commit: `feat(layout): add desktop columns and mobile bottom sheet`.
@@ -355,8 +387,10 @@ Set at 01:40 EDT on 2026-10-08. Reason: pace.
    under invented parks; Cedar Hill sits on the generic NYC point; no changes were made to the
    sample), known issues (example.com images never load so every frame shows the placeholder; OSM
    tile policy for public use; no backend), how it was checked (tests, keyboard walk, Playwright
-   checks, reduced motion, mobile viewport), time spent (from the Time log), next steps before
-   public use.
+   checks, reduced motion, mobile viewport), time spent (both columns of the Time log: focused
+   minutes and wall-clock, with a sentence that Tom stepped away from the computer during
+   sessions so wall-clock overstates the work), the municipality decision (New York City from the
+   data, not named in the UI), next steps before public use.
 5. [fable] Export every `.jsonl` in `~/.claude/projects/-Users-tom-park-finder/` unredacted into
    an `ai-logs/` folder next to the source in the zip (not committed).
 6. [fable] Zip: `git archive` of main plus `ai-logs/`.
@@ -367,17 +401,35 @@ Set at 01:40 EDT on 2026-10-08. Reason: pace.
 - Search, filters, and current location (optional in the brief).
 - Retry on load failure.
 
+## Plan review (session 3)
+
+Tom had Codex review this plan after slice 1. Decisions on its seven points, all written into the
+sections above:
+
+1. Municipality: New York City, from the data, stated in the README and not in the UI (Display
+   table). Time cap: Tom's call; the Time log now separates focused minutes from wall-clock.
+2. Bottom sheet: attribution moved to the top right (slice 3) and `focusin` on the map collapses
+   the sheet (slice 4). Expanded height stays 85dvh.
+3. ParkImage: `state` is a `linkedSignal` on `src`, null `src` is the placeholder, two tests added.
+4. Focus: `afterRenderEffect`, "Parks" heading gets `tabindex="-1"`, the effect acts once per id.
+5. Scroll: the matcher-route rationale no longer claims scroll preservation; `focus()` on the
+   restored link scrolls it into view, and the browser walk checks a park near the bottom.
+6. Integration test: `withComponentInputBinding()` in the spec, A → B → list and error-on-details
+   cases added, error takes precedence over "not found".
+7. Tooltips: an element with `textContent`, never a string; a markup-name test added.
+
 ## Time log
 
-The brief asks for approximate time spent. Record actual minutes per session here; the README
-reports the total.
+The brief asks for approximate time spent. Focused minutes are what the README reports as time
+spent; wall-clock is session start to end. They differ because Tom stepped away from the computer
+during sessions, and the README says so.
 
-| Session | Work                   | Minutes |
-| ------- | ---------------------- | ------- |
-| 1       | Setup, scaffold, grill | ~45     |
-| 2       | This plan              | ~60     |
-| 3       | Slice 1                |         |
-| 4       | Slice 2                |         |
-| 5       | Slice 3                |         |
-| 6       | Slice 4                |         |
-| 7       | Wrap-up                |         |
+| Session | Work                   | Focused minutes | Wall-clock        |
+| ------- | ---------------------- | --------------- | ----------------- |
+| 1       | Setup, scaffold, grill |                 | ~45 (23:45–00:30) |
+| 2       | This plan              |                 | ~60 (00:35–01:45) |
+| 3       | Slice 1, plan review   |                 | ~30 (01:45–02:15) |
+| 4       | Slice 2                |                 |                   |
+| 5       | Slice 3                |                 |                   |
+| 6       | Slice 4                |                 |                   |
+| 7       | Wrap-up                |                 |                   |
