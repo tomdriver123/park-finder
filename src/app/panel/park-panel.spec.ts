@@ -145,6 +145,8 @@ describe('ParkPanel', () => {
       expect(placeholders.length).toBe(1);
       expect(text(placeholders[0])).toBe('No image available');
       expect(el(fixture).querySelector('.skeleton')).toBeNull();
+      expect(el(fixture).querySelector('.thumb')).toBeNull();
+      expect(el(fixture).querySelector('.emoji-row')).not.toBeNull();
       expect(el(fixture).querySelector('.caption')).toBeNull();
     });
 
@@ -166,41 +168,82 @@ describe('ParkPanel', () => {
       expect(el(fixture).querySelector('article ul')).toBeNull();
     });
 
-    it('lists Highland amenities as readable labels', async () => {
+    it('lists Highland amenities with a decorative emoji beside each label', async () => {
       const fixture = await render({ selectedId: 'highland-dog-park' });
-      const items = Array.from(el(fixture).querySelectorAll('article ul li')).map((li) => text(li));
-      expect(items).toEqual(['Dog run', 'Restrooms', 'Parking', 'Water fountain']);
+      const labels = Array.from(el(fixture).querySelectorAll('.amenities .label')).map((n) =>
+        text(n),
+      );
+      const emoji = Array.from(el(fixture).querySelectorAll('.amenities .emoji')).map((n) =>
+        text(n),
+      );
+      expect(labels).toEqual(['Dog run', 'Restrooms', 'Parking', 'Water fountain']);
+      expect(emoji).toEqual(['🐕', '🚻', '🅿️', '🚰']);
     });
 
-    it('shows Prospect Park photo loading with a one-more caption, then the placeholder on error', async () => {
-      const fixture = await render({ selectedId: 'prospect-park' });
-      expect(el(fixture).querySelectorAll('.skeleton').length).toBe(1);
-      expect(text(el(fixture).querySelector('.caption'))).toBe('and 1 more photo');
-      img(fixture).dispatchEvent(new Event('error'));
-      await fixture.whenStable();
-      expect(text(el(fixture).querySelector('.placeholder'))).toBe('No image available');
-      expect(el(fixture).querySelector('.skeleton')).toBeNull();
+    it('hides the summary emoji row and thumbnail from assistive technology', async () => {
+      const fixture = await render({ selectedId: 'highland-dog-park' });
+      expect(el(fixture).querySelector('.emoji-row')?.getAttribute('aria-hidden')).toBe('true');
+      const thumb = el(fixture).querySelector('app-park-image.thumb');
+      expect(thumb?.getAttribute('aria-hidden')).toBe('true');
+      expect(thumb?.querySelector('img')?.getAttribute('alt')).toBe('');
     });
 
-    it('shows the Prospect Park photo once it loads', async () => {
+    it('renders a thumbnail plus one frame per Prospect Park image, with no caption', async () => {
       const fixture = await render({ selectedId: 'prospect-park' });
-      img(fixture).dispatchEvent(new Event('load'));
+      expect(el(fixture).querySelector('app-park-image.thumb')).not.toBeNull();
+      expect(el(fixture).querySelectorAll('.skeleton').length).toBe(3);
+      const heading = Array.from(el(fixture).querySelectorAll('h3')).find((h) =>
+        ['Photo', 'Photos'].includes(text(h)),
+      );
+      expect(text(heading)).toBe('Photos');
+      const alts = Array.from(el(fixture).querySelectorAll('.gallery img')).map((i) =>
+        i.getAttribute('alt'),
+      );
+      expect(alts).toEqual(['Prospect Park photo 1', 'Prospect Park photo 2']);
+      expect(el(fixture).querySelector('.caption')).toBeNull();
+    });
+
+    it('shows a placeholder for a failed gallery image while the other frame keeps loading', async () => {
+      const fixture = await render({ selectedId: 'prospect-park' });
+      const first = el(fixture).querySelector<HTMLImageElement>('.gallery img');
+      first?.dispatchEvent(new Event('error'));
       await fixture.whenStable();
-      expect(img(fixture).classList.contains('hidden')).toBe(false);
-      expect(img(fixture).alt).toBe('Prospect Park photo');
-      expect(el(fixture).querySelector('.skeleton')).toBeNull();
+      const placeholders = el(fixture).querySelectorAll('.placeholder');
+      expect(placeholders.length).toBe(1);
+      expect(text(placeholders[0])).toBe('No image available');
+      const frames = el(fixture).querySelectorAll('.gallery app-park-image');
+      expect(frames[0].querySelector('.placeholder')).not.toBeNull();
+      expect(frames[1].querySelector('.skeleton')).not.toBeNull();
+    });
+
+    it('shows a gallery image once it loads', async () => {
+      const fixture = await render({ selectedId: 'prospect-park' });
+      const first = el(fixture).querySelector<HTMLImageElement>('.gallery img');
+      first?.dispatchEvent(new Event('load'));
+      await fixture.whenStable();
+      expect(first?.classList.contains('hidden')).toBe(false);
+      expect(el(fixture).querySelectorAll('.skeleton').length).toBe(2);
       expect(el(fixture).querySelector('.placeholder')).toBeNull();
     });
 
-    it('pluralizes the caption for two or more extra photos', async () => {
-      const park: Park = { ...NOWHERE, images: ['a.jpg', 'b.jpg', 'c.jpg'] };
-      const fixture = await render({ parks: [park], selectedId: 'nowhere-park' });
-      expect(text(el(fixture).querySelector('.caption'))).toBe('and 2 more photos');
+    it('renders one frame headed "Photo" for Riverside Commons, which has one image', async () => {
+      const fixture = await render({ selectedId: 'riverside-commons' });
+      expect(el(fixture).querySelectorAll('.gallery app-park-image').length).toBe(1);
+      const heading = Array.from(el(fixture).querySelectorAll('h3')).find((h) =>
+        ['Photo', 'Photos'].includes(text(h)),
+      );
+      expect(text(heading)).toBe('Photo');
+      expect(el(fixture).querySelector('.gallery img')?.getAttribute('alt')).toBe(
+        'Riverside Commons photo',
+      );
     });
 
-    it('has no caption for Riverside Commons, which has one image', async () => {
-      const fixture = await render({ selectedId: 'riverside-commons' });
-      expect(el(fixture).querySelector('.caption')).toBeNull();
+    it('shows no thumbnail, no emoji row, and one placeholder when a park has neither', async () => {
+      const fixture = await render({ parks: [NOWHERE], selectedId: 'nowhere-park' });
+      expect(el(fixture).querySelector('.thumb')).toBeNull();
+      expect(el(fixture).querySelector('.emoji-row')).toBeNull();
+      expect(el(fixture).querySelectorAll('.placeholder').length).toBe(1);
+      expect(el(fixture).querySelector('.skeleton')).toBeNull();
     });
 
     it('says park not found for an unknown id and focuses the heading', async () => {

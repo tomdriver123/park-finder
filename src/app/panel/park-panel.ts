@@ -11,6 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Park } from '../data/park';
 import { PIN_PATH, pinColor } from '../map/pin-colors';
+import { amenityEmoji } from './amenity-emoji';
 import { ParkImage } from './park-image';
 
 @Component({
@@ -27,6 +28,7 @@ export class ParkPanel {
   /** Undefined means list mode. */
   readonly selectedId = input<string>();
 
+  protected readonly amenityEmoji = amenityEmoji;
   protected readonly pinColor = pinColor;
   protected readonly PIN_PATH = PIN_PATH;
 

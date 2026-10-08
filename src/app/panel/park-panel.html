@@ -36,46 +36,71 @@
   @if (selected(); as park) {
     <article>
       <h2 tabindex="-1" #detailsHeading>{{ park.name }}</h2>
-      <dl>
-        <dt>Location</dt>
-        <dd>
-          @if (park.address !== null) {
-            {{ park.address }}
-          } @else if (park.coordinates !== null) {
-            {{ park.coordinates.lat }}, {{ park.coordinates.lng }}
-          } @else {
-            Location not available
+      <div class="summary">
+        <dl>
+          <dt>Location</dt>
+          <dd>
+            @if (park.address !== null) {
+              {{ park.address }}
+            } @else if (park.coordinates !== null) {
+              {{ park.coordinates.lat }}, {{ park.coordinates.lng }}
+            } @else {
+              Location not available
+            }
+          </dd>
+          @if (park.hours !== null) {
+            <dt>Hours</dt>
+            <dd>{{ park.hours }}</dd>
           }
-        </dd>
-        @if (park.hours !== null) {
-          <dt>Hours</dt>
-          <dd>{{ park.hours }}</dd>
-        }
-        @if (park.acreage !== null) {
-          <dt>Size</dt>
-          <dd>{{ park.acreage }} acres</dd>
-        }
-        @if (park.rating !== null) {
-          <dt>Rating</dt>
-          <dd>{{ park.rating }}</dd>
-        }
-      </dl>
+          @if (park.acreage !== null) {
+            <dt>Size</dt>
+            <dd>{{ park.acreage }} acres</dd>
+          }
+          @if (park.rating !== null) {
+            <dt>Rating</dt>
+            <dd>{{ park.rating }}</dd>
+          }
+        </dl>
+        <div class="preview">
+          @if (park.images.length > 0) {
+            <app-park-image class="thumb" aria-hidden="true" [src]="park.images[0]" alt="" />
+          }
+          @if (park.amenities.length > 0) {
+            <p class="emoji-row" aria-hidden="true">
+              @for (amenity of park.amenities; track $index) {
+                {{ amenityEmoji(amenity) }}
+              }
+            </p>
+          }
+        </div>
+      </div>
       <h3>Description</h3>
       <p>{{ park.description ?? 'No description available.' }}</p>
       @if (park.amenities.length > 0) {
         <h3>Amenities</h3>
         <ul class="amenities">
           @for (amenity of park.amenities; track $index) {
-            <li>{{ amenity }}</li>
+            <li>
+              <span class="emoji" aria-hidden="true">{{ amenityEmoji(amenity) }}</span>
+              <span class="label">{{ amenity }}</span>
+            </li>
           }
         </ul>
       }
-      <h3>Photo</h3>
-      <app-park-image [src]="park.images[0] ?? null" [alt]="park.name + ' photo'" />
-      @if (park.images.length > 1) {
-        <p class="caption">
-          and {{ park.images.length - 1 }} more {{ park.images.length === 2 ? 'photo' : 'photos' }}
-        </p>
+      <h3>{{ park.images.length > 1 ? 'Photos' : 'Photo' }}</h3>
+      @if (park.images.length === 0) {
+        <app-park-image [src]="null" [alt]="park.name + ' photo'" />
+      } @else {
+        <div class="gallery">
+          @for (image of park.images; track $index) {
+            <app-park-image
+              [src]="image"
+              [alt]="
+                park.images.length > 1 ? park.name + ' photo ' + ($index + 1) : park.name + ' photo'
+              "
+            />
+          }
+        </div>
       }
     </article>
   } @else {
