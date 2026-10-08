@@ -81,6 +81,15 @@ describe('ParkPanel', () => {
       expect(links.map((a) => a.getAttribute('href'))).toEqual(PARKS.map((p) => `/parks/${p.id}`));
     });
 
+    it('titles the list Parks and labels the nav by that heading', async () => {
+      const fixture = await render();
+      expect(text(h2(fixture))).toBe('Parks');
+      expect(h2(fixture)?.id).toBe('panel-heading');
+      expect(el(fixture).querySelector('nav')?.getAttribute('aria-labelledby')).toBe(
+        'panel-heading',
+      );
+    });
+
     it('gives each link one pin colored by its position in the list', async () => {
       const fixture = await render();
       const links = Array.from(el(fixture).querySelectorAll<HTMLElement>('nav ul a'));
@@ -249,6 +258,9 @@ describe('ParkPanel', () => {
     it('says park not found for an unknown id and focuses the heading', async () => {
       const fixture = await render({ selectedId: 'nope' });
       expect(text(h2(fixture))).toBe('Park not found');
+      expect(text(el(fixture).querySelector('.panel-body'))).toContain(
+        'No park matches this link.',
+      );
       expect(document.activeElement).toBe(h2(fixture));
     });
 
@@ -256,6 +268,11 @@ describe('ParkPanel', () => {
       const fixture = await render({ parks: [], loading: true, selectedId: 'prospect-park' });
       expect(text(el(fixture).querySelector('[role="status"]'))).toBe('Loading parks…');
       expect(el(fixture).textContent).not.toContain('Park not found');
+    });
+
+    it('keeps the heading as Parks while loading with an id', async () => {
+      const fixture = await render({ parks: [], loading: true, selectedId: 'prospect-park' });
+      expect(text(h2(fixture))).toBe('Parks');
     });
 
     it('shows the error, not park not found, when loading failed with an id', async () => {
@@ -323,6 +340,7 @@ describe('ParkPanel', () => {
 
     it('focuses the heading once a deep link finishes loading', async () => {
       const fixture = await render({ parks: [], loading: true, selectedId: 'highland-dog-park' });
+      expect(document.activeElement).not.toBe(h2(fixture));
       fixture.componentRef.setInput('parks', PARKS);
       fixture.componentRef.setInput('loading', false);
       await fixture.whenStable();

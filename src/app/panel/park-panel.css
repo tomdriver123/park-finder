@@ -1,10 +1,45 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
-h2 {
-  margin: 0 0 var(--space-3);
-  color: var(--color-primary);
+.panel-bar {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-secondary);
+}
+
+.slot {
+  display: flex;
+}
+
+.slot:last-child {
+  justify-content: flex-end;
+}
+
+.panel-bar h2 {
+  margin: 0;
+  color: var(--color-surface);
+  font-size: 1.1rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* The tertiary ring is about 2.1:1 on the brown bar, under the 3:1 a focus indicator needs; white is 13:1. */
+.panel-bar :focus-visible {
+  outline-color: var(--color-surface);
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-3);
+  overflow-y: auto;
 }
 
 h3 {

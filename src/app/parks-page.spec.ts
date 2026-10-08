@@ -155,6 +155,14 @@ describe('ParksPage (integration)', () => {
     );
   });
 
+  it('titles the desktop bar Parks on /parks and the park name on its details', async () => {
+    await go('/parks');
+    await flushSample();
+    expect(root().querySelector('main .panel-bar h2')?.textContent?.trim()).toBe('Parks');
+    await go('/parks/prospect-park');
+    expect(root().querySelector('main .panel-bar h2')?.textContent?.trim()).toBe('Prospect Park');
+  });
+
   describe('mobile sheet', () => {
     const MOBILE_QUERY = '(max-width: 767.98px)';
 
@@ -252,6 +260,15 @@ describe('ParksPage (integration)', () => {
       expect(bar().querySelector('a[href="/parks"]')?.getAttribute('aria-label')).toBe(
         'Back to parks',
       );
+    });
+
+    it('orders the details bar as Back, heading, then the toggle', async () => {
+      await go('/parks/prospect-park');
+      await flushSample();
+      const back = bar().querySelector('a[href="/parks"]');
+      const title = bar().querySelector('h2');
+      expect(precedes(back, title)).toBe(true);
+      expect(precedes(title, toggle())).toBe(true);
     });
 
     it('main precedes aside in the DOM', async () => {

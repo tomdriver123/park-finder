@@ -37,8 +37,19 @@ export class ParkPanel {
     return id === undefined ? undefined : this.parks().find((park) => park.id === id);
   });
 
-  private readonly listHeading = viewChild<ElementRef<HTMLHeadingElement>>('listHeading');
-  private readonly detailsHeading = viewChild<ElementRef<HTMLHeadingElement>>('detailsHeading');
+  protected readonly title = computed(() => {
+    const id = this.selectedId();
+    if (id === undefined) {
+      return 'Parks';
+    }
+    const park = this.selected();
+    if (park) {
+      return park.name;
+    }
+    return this.loading() || this.error() !== null ? 'Parks' : 'Park not found';
+  });
+
+  private readonly heading = viewChild.required<ElementRef<HTMLHeadingElement>>('heading');
   private readonly parkLinks = viewChildren<ElementRef<HTMLAnchorElement>>('parkLink');
 
   /** The id the focus effect last acted on; plain fields so writing them never re-runs it. */
@@ -49,14 +60,13 @@ export class ParkPanel {
   constructor() {
     afterRenderEffect(() => {
       const id = this.selectedId();
-      const detailsHeading = this.detailsHeading();
-      const listHeading = this.listHeading();
+      const heading = this.heading();
       const links = this.parkLinks();
 
       if (id !== undefined) {
         // A re-run with the same id (for example a viewChild signal change) must not re-steal focus.
-        if (id !== this.lastFocusedId && detailsHeading) {
-          detailsHeading.nativeElement.focus();
+        if (id !== this.lastFocusedId && !this.loading()) {
+          heading.nativeElement.focus();
           this.lastFocusedId = id;
           this.lastOpenedId = id;
         }
@@ -68,7 +78,7 @@ export class ParkPanel {
         return;
       }
       const link = links.find((ref) => ref.nativeElement.dataset['parkId'] === this.lastOpenedId);
-      const target = link?.nativeElement ?? listHeading?.nativeElement;
+      const target = link?.nativeElement ?? heading.nativeElement;
       if (target) {
         target.focus();
         this.lastFocusedId = undefined;

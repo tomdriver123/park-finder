@@ -19,17 +19,8 @@ main {
 .sheet-content {
   flex: 1;
   min-height: 0;
-  padding: var(--space-3);
-  overflow-y: auto;
-}
-
-.panel-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3) 0;
-  background: var(--color-secondary);
+  flex-direction: column;
 }
 
 .back,
@@ -40,23 +31,19 @@ main {
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  box-sizing: border-box;
   padding: 0;
-  border: 0;
+  border: 1px solid var(--color-surface);
   border-radius: var(--radius);
-  background: var(--color-tertiary);
+  background: transparent;
   color: var(--color-surface);
   cursor: pointer;
 }
 
-.recenter {
-  border: 1px solid var(--color-surface);
-  background: transparent;
-  color: var(--color-surface);
-}
-
-/* The tertiary ring is about 2.1:1 on the brown bar, under the 3:1 a focus indicator needs; white is 13:1. */
-.panel-bar :focus-visible {
-  outline-color: var(--color-surface);
+.back:hover,
+.recenter:hover,
+.sheet-toggle:hover {
+  background: color-mix(in srgb, var(--color-surface) 15%, transparent);
 }
 
 .sheet-toggle svg {
