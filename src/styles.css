@@ -8,6 +8,7 @@
   --color-tertiary: #2c4cd1; /* the accent: buttons, links, selected pin, focus ring */
   --color-surface: #ffffff;
   --color-surface-tint: color-mix(in srgb, var(--color-tertiary) 8%, white); /* selected row */
+  --color-primary-tint: color-mix(in srgb, var(--color-primary) 8%, white);
   --color-border: color-mix(in srgb, var(--color-primary) 20%, white);
   --focus-ring: 3px solid var(--color-tertiary);
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;

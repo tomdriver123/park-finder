@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Park } from '../data/park';
+import { PIN_PATH, pinColor } from '../map/pin-colors';
 import { ParkImage } from './park-image';
 
 @Component({
@@ -25,6 +26,9 @@ export class ParkPanel {
   readonly error = input.required<string | null>();
   /** Undefined means list mode. */
   readonly selectedId = input<string>();
+
+  protected readonly pinColor = pinColor;
+  protected readonly PIN_PATH = PIN_PATH;
 
   protected readonly selected = computed(() => {
     const id = this.selectedId();

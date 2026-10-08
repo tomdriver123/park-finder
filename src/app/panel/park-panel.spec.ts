@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import sample from '../../../public/assets/parks.sample.json';
 import { normalizeParks } from '../data/normalize';
 import { Park } from '../data/park';
+import { pinColor } from '../map/pin-colors';
 import { ParkPanel } from './park-panel';
 
 const PARKS: Park[] = normalizeParks(sample);
@@ -78,6 +79,18 @@ describe('ParkPanel', () => {
       expect(links[11].getAttribute('href')).toBe('/parks/hillcrest-skate-park');
       expect(links.map((a) => text(a))).toEqual(PARKS.map((p) => p.name));
       expect(links.map((a) => a.getAttribute('href'))).toEqual(PARKS.map((p) => `/parks/${p.id}`));
+    });
+
+    it('gives each link one pin colored by its position in the list', async () => {
+      const fixture = await render();
+      const links = Array.from(el(fixture).querySelectorAll<HTMLElement>('nav ul a'));
+      links.forEach((link, i) => {
+        const pins = link.querySelectorAll<SVGElement>('svg.pin');
+        expect(pins.length).toBe(1);
+        const probe = document.createElement('span');
+        probe.style.color = pinColor(i);
+        expect(pins[0].style.color).toBe(probe.style.color);
+      });
     });
 
     it('shows a loading status and no list while loading', async () => {

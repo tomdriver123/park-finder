@@ -29,6 +29,7 @@ main {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3) 0;
+  background: var(--color-secondary);
 }
 
 .back,
@@ -45,6 +46,17 @@ main {
   background: var(--color-tertiary);
   color: var(--color-surface);
   cursor: pointer;
+}
+
+.recenter {
+  border: 1px solid var(--color-surface);
+  background: transparent;
+  color: var(--color-surface);
+}
+
+/* The tertiary ring is about 2.1:1 on the brown bar, under the 3:1 a focus indicator needs; white is 13:1. */
+.panel-bar :focus-visible {
+  outline-color: var(--color-surface);
 }
 
 .sheet-toggle svg {
@@ -64,7 +76,7 @@ main.is-expanded .sheet-toggle svg {
     bottom: 0;
     z-index: 1;
     height: 40dvh;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-primary-light);
     border-radius: var(--radius) var(--radius) 0 0;
     transition: height 200ms ease;
   }

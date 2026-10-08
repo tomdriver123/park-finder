@@ -11,9 +11,18 @@
       <ul class="park-list">
         @for (park of parks(); track park.id) {
           <li>
-            <a #parkLink [routerLink]="['/parks', park.id]" [attr.data-park-id]="park.id">{{
-              park.name
-            }}</a>
+            <a #parkLink [routerLink]="['/parks', park.id]" [attr.data-park-id]="park.id"
+              ><svg
+                class="pin"
+                aria-hidden="true"
+                viewBox="0 0 28 40"
+                width="14"
+                height="20"
+                [style.color]="pinColor($index)"
+              >
+                <path fill="currentColor" [attr.d]="PIN_PATH" /></svg
+              >{{ park.name }}</a
+            >
           </li>
         }
       </ul>

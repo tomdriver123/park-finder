@@ -23,6 +23,7 @@ import {
   tileLayer,
 } from 'leaflet';
 import { Park } from '../data/park';
+import { PIN_PATH, pinColor } from './pin-colors';
 
 const SELECTED_Z_OFFSET = 1000;
 
@@ -37,7 +38,7 @@ const pinIcon = divIcon({
   className: 'park-pin',
   html:
     '<svg aria-hidden="true" width="28" height="40" viewBox="0 0 28 40">' +
-    '<path fill="currentColor" d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.3 21.7 0 14 0zm0 19a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>' +
+    `<path fill="currentColor" d="${PIN_PATH}"/>` +
     '</svg>',
   iconSize: [28, 40],
   iconAnchor: [14, 40],
@@ -135,7 +136,8 @@ export class ParkMap {
 
   private buildMarkers(leafletMap: LeafletMap, parks: Park[]): Map<string, Marker> {
     const markers = new Map<string, Marker>();
-    for (const park of parks) {
+    // The index counts every park, including those without coordinates, so the list agrees.
+    for (const [index, park] of parks.entries()) {
       if (!park.coordinates) {
         continue;
       }
@@ -148,7 +150,13 @@ export class ParkMap {
         keyboard: true,
       }).bindTooltip(label, { direction: 'top' });
       // Leaflet adds a marker only once the map has a view, so the element is labelled on add.
-      m.on('add', () => m.getElement()?.setAttribute('aria-label', park.name));
+      m.on('add', () => {
+        const element = m.getElement();
+        element?.setAttribute('aria-label', park.name);
+        if (element) {
+          element.style.color = pinColor(index);
+        }
+      });
       m.on('click', () => this.select.emit(park.id));
       // Leaflet maps Enter to click only for markers with a popup, so handle Enter and Space here.
       m.on('keypress', (e: LeafletKeyboardEvent) => {

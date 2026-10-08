@@ -4,6 +4,7 @@ import sample from '../../../public/assets/parks.sample.json';
 import { normalizePark, normalizeParks } from '../data/normalize';
 import { Park } from '../data/park';
 import { ParkMap } from './park-map';
+import { pinColor } from './pin-colors';
 
 const sampleParks = normalizeParks(sample);
 
@@ -51,6 +52,13 @@ function pinFor(fixture: ComponentFixture<ParkMap>, name: string): HTMLElement {
   return pin;
 }
 
+/** The inline color a browser would store for this hex; jsdom may normalize hex to rgb(). */
+function inlineColor(hex: string): string {
+  const probe = document.createElement('span');
+  probe.style.color = hex;
+  return probe.style.color;
+}
+
 function emitted(fixture: ComponentFixture<ParkMap>): string[] {
   const ids: string[] = [];
   fixture.componentInstance.select.subscribe((id) => ids.push(id));
@@ -93,6 +101,19 @@ describe('ParkMap', () => {
 
     expect(pins(fixture).length).toBe(12);
     expect(pins(fixture).some((pin) => pin.getAttribute('title') === 'Nowhere Park')).toBe(false);
+  });
+
+  it('colors each pin by its position in the list', async () => {
+    const fixture = await render(sampleParks);
+
+    expect(pinFor(fixture, 'Prospect Park').style.color).toBe(inlineColor(pinColor(0)));
+    expect(pinFor(fixture, 'Hillcrest Skate Park').style.color).toBe(inlineColor(pinColor(11)));
+  });
+
+  it('counts parks without coordinates when picking a pin color', async () => {
+    const fixture = await render([noCoordinatesPark, ...sampleParks]);
+
+    expect(pinFor(fixture, 'Prospect Park').style.color).toBe(inlineColor(pinColor(1)));
   });
 
   it('moves the selected state between pins without re-adding them', async () => {
