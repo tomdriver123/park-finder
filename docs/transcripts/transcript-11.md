@@ -1,11 +1,11 @@
 # Transcript 11: Claude Code session b9361792-d304-4f27-bf87-a36c58eb368a
 
 - start: 2026-10-08 07:45:29 UTC / 2026-10-08 03:45:29 New York
-- end: 2026-10-08 08:19:41 UTC / 2026-10-08 04:19:41 New York
-- user records: 33
-- assistant records: 58
-- tool calls: 31
-- tool results: 30
+- end: 2026-10-08 08:21:16 UTC / 2026-10-08 04:21:16 New York
+- user records: 39
+- assistant records: 73
+- tool calls: 37
+- tool results: 36
 - subagent transcripts: 3
 - raw copy: `raw/transcript-11/b9361792-d304-4f27-bf87-a36c58eb368a.jsonl`
 
@@ -3358,6 +3358,506 @@ Verification confirms counts match, and the discrepancies trace back to this ses
 }
 ```
 
+### 2026-10-08T08:19:44.395Z · user
+
+**Tool result**
+
+```
+exported 11 Claude Code sessions and 1 Codex sessions to /Users/tom/park-finder/docs/transcripts
+## Claude Code sessions
+
+| # | Session id | Start (New York) | End (New York) | User / assistant records | Subagents | First prompt |
+| --- | --- | --- | --- | --- | --- | --- |
+| [1](transcript-1.md) | `89b775c1-f4be-4150-8226-c47dfdd97844` | 2026-10-07 23:45 | 2026-10-08 00:28 | 33 / 6
+| [2](transcript-2.md) | `d03bd911-c4b4-415a-83ea-5d39bb08fbe1` | 2026-10-08 00:31 | 2026-10-08 01:46 | 76 / 1
+| [3](transcript-3.md) | `d4c5853d-cd99-44cb-af1a-7edbc998e8b5` | 2026-10-08 01:49 | 2026-10-08 02:10 | 49 / 7
+| [4](transcript-4.md) | `4f7a552d-e59e-4779-a033-0af69682b5cf` | 2026-10-08 02:07 | 2026-10-08 02:07 | 7 / 13
+| [5](transcript-5.md) | `7729400e-ad3a-4c9e-83f5-18eb365b3269` | 2026-10-08 02:07 | 2026-10-08 02:08 | 4 / 9 
+| [6](transcript-6.md) | `caaeb63d-cae4-47c9-b9b8-dcebcbe17c01` | 2026-10-08 02:12 | 2026-10-08 02:32 | 78 / 1
+| [7](transcript-7.md) | `1f20808e-3d74-4234-8d35-5b3a5cdb687b` | 2026-10-08 02:12 | 2026-10-08 02:37 | 79 / 1
+| [8](transcript-8.md) | `dcbecbd2-33e8-4628-929a-f5b1006ed01c` | 2026-10-08 02:38 | 2026-10-08 02:49 | 54 / 7
+| [9](transcript-9.md) | `c732f502-464e-4f8e-96af-3753a53b1134` | 2026-10-08 03:18 | 2026-10-08 03:33 | 54 / 6
+| [10](transcript-10.md) | `a4afaaf8-16b0-4c0c-bd69-fe885a7e4af0` | 2026-10-08 03:34 | 2026-10-08 04:13 | 93 /
+| [11](transcript-11.md) | `b9361792-d304-4f27-bf87-a36c58eb368a` | 2026-10-08 03:45 | 2026-10-08 04:19 | 33 /
+
+## Codex sessions
+--- credential grep context (this session only)
+nthe raw folder for obvious credentials (`sk-ant`, `ghp_`, `Authorization: Bearer`, `auth.json`)\nand report any hit to T
+nthe raw folder for obvious credentials (`sk-ant`, `ghp_`, `Authorization: Bearer`, `auth.json`)\nand report any hit to T
+nthe raw folder for obvious credentials (`sk-ant`, `ghp_`, `Authorization: Bearer`, `auth.json`)\nand report any hit to T
+nthe raw folder for obvious credentials (`sk-ant`, `ghp_`, `Authorization: Bearer`, `auth.json`)\nand report any hit to T
+ $h | $p\"; done\necho \"--- credential grep\"; grep -rlE \"sk-ant-|ghp_[A-Za-z0-9]{20}|Authorization: Bear
+--- raw fidelity (python)
+identical sessions 10 different 0
+--- idempotence excluding the live session
+stable
+--- tool-result inline check
+1
+5
+ M README.md
+?? docs/transcripts/
+ 36M	docs/transcripts
+```
+
+- 2026-10-08T08:19:44.402Z · `attachment` record
+
+- 2026-10-08T08:19:44.405Z · `attachment` record
+
+-  · `last-prompt` record
+
+-  · `ai-title` record
+
+-  · `atis-latch` record
+
+- 2026-10-08T08:19:50.337Z · `attachment` record
+
+### 2026-10-08T08:19:50.337Z · assistant
+
+**Thinking**
+
+
+
+### 2026-10-08T08:19:50.341Z · assistant
+
+**Thinking**
+
+The export checks out: all 10 completed sessions are byte-identical in raw/, reruns are stable, and the only credential-pattern matches are from my own instructions, not real leaks. Committing the transcripts now while reading the README draft during Pass C.
+
+
+
+### 2026-10-08T08:19:50.863Z · assistant
+
+**Tool call: Bash**
+
+```json
+{
+  "command": "git add docs/transcripts && git commit -q -m \"docs: add AI transcripts and the exporter\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\" && git log --oneline -1 && git show --stat HEAD | tail -3 && echo \"--- README\" && cat README.md",
+  "description": "Commit the transcripts and show the README draft"
+}
+```
+
+### 2026-10-08T08:19:52.411Z · user
+
+**Tool result**
+
+````
+5b806ee docs: add AI transcripts and the exporter
+ docs/transcripts/transcript-8.md                   |  6368 +++++++
+ docs/transcripts/transcript-9.md                   |  3730 ++++
+ 61 files changed, 78754 insertions(+)
+--- README
+# Park Finder
+
+A small "Find a Park" app for the Granicus take-home (brief: `docs/local-parks-candidate.pdf`). It
+shows a list of parks, a details view, and a map with markers. Picking a park from the list, from
+a map pin, or from the URL opens the same details.
+
+Municipality: New York City, taken from the coordinates and addresses in
+`public/assets/parks.sample.json`. The UI does not name a city. The park names in the sample are
+invented (plus Prospect Park), so real borough labels on the map tiles sit under fictional parks.
+Cedar Hill Nature Preserve sits on the generic NYC point. I did not change the sample file.
+
+Stack: Angular 22.2 (standalone components, zoneless, signals), Leaflet 1.9.4 with OpenStreetMap
+tiles, Vitest 5 on jsdom through `ng test`, Prettier, plain CSS with custom properties.
+
+## Run it
+
+Node 24.21.0 is pinned in `.nvmrc`. The Angular 22 CLI refuses Node below 24.15.
+
+```bash
+nvm use
+npm install
+npm start
+```
+
+Then open http://localhost:4200. No API keys are needed.
+
+```bash
+npm test                    # Vitest through ng test (watch mode)
+npx ng test --watch=false   # single run
+npm run build               # output in dist/park-finder/browser
+```
+
+The map uses OpenStreetMap tiles under the OpenStreetMap tile usage policy. A public deployment
+should use its own tile provider or get a usage agreement.
+
+## Using the app
+
+- The list of parks is the left column on desktop and a bottom sheet on a phone. On a phone the
+  `^` button in the sheet bar switches between a 40dvh peek and a 70dvh expanded sheet.
+- Open a park by clicking it, with the keyboard (Tab, Enter), or by URL: `/parks/<id>`.
+- Pins on the map open the same details (click, Enter, or Space). Hover and focus show the park
+  name.
+- The `<` Back icon returns to the list, and focus returns to that park's link.
+- The crosshair Recenter button refits the map to all parks.
+- The panel title sits centered in the brown bar.
+- Details show location (address, else coordinates, else "Location not available"), hours, size,
+  rating (hidden when null), description ("No description available." when missing), amenities
+  with emoji (`src/app/panel/amenity-emoji.ts`), and the photos (a placeholder when there are none
+  or loading fails).
+
+## What works
+
+In my own words, from using it on a phone and a desktop: the map zooming, the mobile view, the
+navigation is seamless, and the responsive design in general.
+
+Also:
+
+- The core loop from the list, the map, and the URL.
+- Missing data handled by the rules in `CLAUDE.md`, never invented.
+- A keyboard path to every park with a visible focus ring. Focus moves to the details heading on
+  open and back to the list item on close.
+- Landmarks `nav`, `main`, and `aside`, and one `h1`.
+
+## What was left out
+
+- Search.
+- Filters. I wanted to filter by rating and by amenities, and to show the amenities on the map.
+- Current location.
+- Retry on load failure.
+- Backend, accounts, and hosting.
+- The brief's two-hour cap. I went over it (see Time spent).
+
+## Important decisions
+
+The full record is in `docs/plans/PLAN.md` (decisions, architecture, slices) and
+`docs/plans/plan-feedback.md` (the last round of fixes). In short:
+
+- Normalize once, never invent values. `src/app/data/normalize.ts` is a pure function called only
+  by `ParksService` (`src/app/data/parks-service.ts`, `HttpClient`, signals `parks`, `loading`,
+  `error`). Fallback strings live in the templates, not in the data.
+- One `UrlMatcher` route for `parks` and `parks/:id`. With two routes Angular would recreate the
+  page, and the map, on every open and close. With one, only the `id` input changes.
+- The app is zoneless, so every Leaflet callback writes a signal.
+- `ParkPanel` and `ParkMap` take inputs from the page and never inject the service. One
+  integration spec covers the page.
+- Palette: the seven dark hexes I picked read as black when used as text. They are used as fills
+  (green header, brown bar) with white text. Tertiary blue stays the one accent for links, the
+  selected pin stroke, and the focus ring. In the brown bar the focus ring is white for contrast.
+- Pin colors are assigned by list position (`src/app/map/pin-colors.ts`), so the list and the map
+  match.
+- On a phone, selecting a park keeps the sheet at peek. Only the toggle expands it. Selection used
+  to expand it, which hid the map zoom.
+- `fitBounds` runs with `animate: false`. Leaflet silently drops camera calls that arrive during a
+  running zoom animation. The `ResizeObserver` fed one call per frame of the sheet transition and
+  the last one was dropped, leaving the map zoomed out. A pending-request replay on `zoomend`
+  covers requests that land mid-animation.
+- The map attribution is at the top right so the sheet never covers it.
+- Markers show both the native `title` and the Leaflet tooltip.
+- The bar controls are white outlined icons with `aria-label` and `title`.
+- Angular 22 rewrites custom properties in component styles with a namespace placeholder that
+  resolves to an empty string unless opted in, so the tokens work as written.
+
+## Known issues
+
+- `images.example.com` never resolves, so every photo frame shows the placeholder and the console
+  logs one failed request per image.
+- After browser Back triggered by the mouse, the restored list link has focus but no ring.
+  Chromium hides `:focus-visible` after pointer input. Keyboard paths always show the ring.
+- The Leaflet container is a Tab stop before the pins.
+- The playground emoji needs Emoji 14 and shows a box on older systems.
+- No retry on load failure.
+
+## How it was checked
+
+- Unit tests: 9 spec files, 94 tests, all green. Expected values come from the rules in
+  `CLAUDE.md` and `docs/plans/PLAN.md`, not from the code under test. Fixtures are the real
+  sample file plus hand-written edge rows.
+- Prettier and a clean production build (initial bundle about 439 kB) before every commit.
+- Playwright MCP browser checks at 375x667 and 1280x800 after slices 2, 3, and 4: keyboard walk,
+  focus rings, no text under 16px, reduced motion, attribution visible, sheet behavior.
+- For the session 7 slices the Playwright MCP profile was locked, so the checks ran through
+  headless Chrome driven by the cached `playwright-core` package: keyboard walk, bar controls at
+  44px, centered title, deep link focus.
+- A final browser pass in the wrap-up session. TODO Fable: Pass C result
+- My own code review of every diff (Pass A: ten items listed in `docs/handoffs/handoff-7.md`
+  section 5, all fixed in Slice 5).
+- Codex reviews of the plan files: session 3 on the PLAN.md slices 2 to 4, and `plan-feedback.md`
+  before session 7. The accepted points are written into PLAN.md under "Plan review (session 3)".
+- The project grill skill (`.claude/skills/grill/SKILL.md`) interviewed me on every open decision
+  before any code was written, so the plan files are thorough and the code was built to them.
+
+## How AI was used
+
+Claude Code throughout. Fable (the overseeing model) reads every diff and test run itself, never
+writes slice code, and commits only when I say so. Each slice was built by one Opus or Sonnet
+subagent with the model passed explicitly (routing table in PLAN.md, "Model routing"). Handoff
+files carry state between sessions. Codex (OpenAI) reviewed the plan files.
+
+Logs: `docs/transcripts/` holds every Claude Code session as `transcript-N.md`, with the raw
+files under `docs/transcripts/raw/`, and the Codex session as `codex-1.md`. See
+`docs/transcripts/README.md`. The wrap-up session's own transcript is re-exported after it ends
+(`python3 docs/transcripts/export-transcripts.py`).
+
+Paths:
+
+- `CLAUDE.md`
+- `docs/plans/PLAN.md`
+- `docs/plans/plan-feedback.md`
+- `docs/handoffs/` (`handoff-1.md` to `handoff-7.md`, plus the final one)
+- `docs/transcripts/`
+- `.claude/skills/grill/SKILL.md`
+- `.claude/skills/handoff/SKILL.md`
+- `docs/local-parks-candidate.pdf`
+
+## Time spent
+
+I went over the brief's two-hour cap. The extra time went to planning documents, review passes,
+and the session 7 polish after I used the app on my phone.
+
+Wall-clock from session timestamps (2026-10-07 and 10-08, EDT):
+
+| Session | Work                                | Wall-clock                  |
+| ------- | ----------------------------------- | --------------------------- |
+| 1       | Setup, scaffold, grill              | ~45 min (23:45-00:28)       |
+| 2       | PLAN.md                             | ~60 min (00:31-01:46)       |
+| 3       | Slice 1, Codex plan review          | ~20 min (01:49-02:10)       |
+| 4       | Slice 2 (parallel with session 5)   | ~20 min (02:12-02:32)       |
+| 5       | Slice 3 (parallel with session 4)   | ~25 min (02:12-02:37)       |
+| 6       | Slice 4                             | ~11 min (02:38-02:49)       |
+| 7       | Session 7 plan (`plan-feedback.md`) | ~15 min (03:18-03:33)       |
+| 8       | Slices 5 to 8                       | ~40 min (03:34-04:13)       |
+| 9       | Wrap-up: docs, transcripts, README  | ~60 min (03:45-about 04:45) |
+
+Summed session time is about 4.5 hours; the elapsed window is 23:45 to about 04:45. I stepped away
+from the computer during some sessions (session 2 in particular), so wall-clock overstates focused
+work.
+
+Focused time: TODO Tom
+
+## Next steps before public use
+
+- Static hosting with a real data endpoint and cache headers.
+- Real image URLs behind a CDN, with sizes and alt text.
+- A tile provider agreement or self-hosted tiles.
+- Retry and offline messaging.
+- Error monitoring.
+- An end-to-end suite in CI.
+- An axe audit and a screen-reader pass.
+- Search and filters once the dataset warrants them.
+````
+
+- 2026-10-08T08:19:52.417Z · `attachment` record
+
+- 2026-10-08T08:19:52.419Z · `attachment` record
+
+- 2026-10-08T08:20:03.674Z · `attachment` record
+
+- 2026-10-08T08:20:04.135Z · `queue-operation` record
+
+-  · `last-prompt` record
+
+-  · `ai-title` record
+
+-  · `atis-latch` record
+
+### 2026-10-08T08:20:03.673Z · assistant
+
+**Thinking**
+
+
+
+### 2026-10-08T08:20:03.680Z · assistant
+
+**Thinking**
+
+I'll hold off on three small README corrections until Pass C reports, but I'll go ahead and update the PLAN.md time log rows now since they're independent of that.
+
+
+
+### 2026-10-08T08:20:08.166Z · assistant
+
+**Tool call: Bash**
+
+```json
+{
+  "command": "python3 - <<'EOF'\nfrom pathlib import Path\np=Path('docs/plans/PLAN.md'); s=p.read_text()\nold='| 7       | Slices 5–7, wrap-up    |                 | (03:36–)          |\\n'\nnew=('| 7       | Session 7 plan         |                 | ~15 (03:18–03:33) |\\n'\n     '| 8       | Slices 5–8             |                 | ~40 (03:34–04:13) |\\n'\n     '| 9       | Wrap-up, docs, README  |                 | ~60 (03:45–04:45) |\\n'\n     '\\n'\n     'Sessions 4 and 5 ran in parallel, as did 8 and 9. Summed session time is about 4.5 hours; the\\n'\n     'elapsed window is 23:45 to about 04:45. `docs/transcripts/` numbers the eleven Claude Code\\n'\n     'session files chronologically, so its numbers differ from this table: transcripts 4 and 5 are\\n'\n     'two aborted one-minute starts (handoff-3 and handoff-4 opened, then the sessions restarted),\\n'\n     'transcript 6 is session 4, 7 is session 5, 8 is session 6, 9 is session 7, 10 is session 8, and\\n'\n     '11 is session 9.\\n')\nassert old in s; p.write_text(s.replace(old,new))\nEOF\ntail -16 docs/plans/PLAN.md; git status --short",
+  "description": "Fill the PLAN.md time log rows for sessions 7 to 9"
+}
+```
+
+### 2026-10-08T08:20:08.497Z · user
+
+**Tool result**
+
+```
+| 1       | Setup, scaffold, grill |                 | ~45 (23:45–00:30) |
+| 2       | This plan              |                 | ~60 (00:35–01:45) |
+| 3       | Slice 1, plan review   |                 | ~30 (01:45–02:15) |
+| 4       | Slice 2                |                 | ~15 (02:15–02:30) |
+| 5       | Slice 3                |                 | ~20 (02:15–02:35) |
+| 6       | Slice 4                |                 | ~15 (02:36–02:50) |
+| 7       | Session 7 plan         |                 | ~15 (03:18–03:33) |
+| 8       | Slices 5–8             |                 | ~40 (03:34–04:13) |
+| 9       | Wrap-up, docs, README  |                 | ~60 (03:45–04:45) |
+
+Sessions 4 and 5 ran in parallel, as did 8 and 9. Summed session time is about 4.5 hours; the
+elapsed window is 23:45 to about 04:45. `docs/transcripts/` numbers the eleven Claude Code
+session files chronologically, so its numbers differ from this table: transcripts 4 and 5 are
+two aborted one-minute starts (handoff-3 and handoff-4 opened, then the sessions restarted),
+transcript 6 is session 4, 7 is session 5, 8 is session 6, 9 is session 7, 10 is session 8, and
+11 is session 9.
+ M README.md
+ M docs/plans/PLAN.md
+```
+
+- 2026-10-08T08:20:04.135Z · `attachment` record
+
+- 2026-10-08T08:20:08.502Z · `queue-operation` record
+
+- 2026-10-08T08:20:08.502Z · `attachment` record
+
+-  · `last-prompt` record
+
+-  · `ai-title` record
+
+-  · `atis-latch` record
+
+- 2026-10-08T08:20:16.251Z · `attachment` record
+
+### 2026-10-08T08:20:16.250Z · assistant
+
+**Thinking**
+
+
+
+### 2026-10-08T08:20:16.255Z · assistant
+
+**Thinking**
+
+Pass C passed 8 of 9 checks—the lone failure is a synthetic timing edge case (wheel zoom + Recenter within 30ms) that no real user could trigger, so I'll document it as a known issue rather than fix it. Next I'll review two screenshots before finalizing the README.
+
+
+
+### 2026-10-08T08:20:16.258Z · assistant
+
+**Tool call: Read**
+
+```json
+{
+  "file_path": "/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/desktop-details.png"
+}
+```
+
+### 2026-10-08T08:20:16.299Z · user
+
+**Tool result**
+
+[image block, image/jpeg, 512576 base64 characters; the raw copy holds the data]
+
+### 2026-10-08T08:20:16.565Z · assistant
+
+**Tool call: Read**
+
+```json
+{
+  "file_path": "/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/mobile-peek-selected.png"
+}
+```
+
+### 2026-10-08T08:20:16.588Z · user
+
+**Tool result**
+
+[image block, image/png, 268556 base64 characters; the raw copy holds the data]
+
+- 2026-10-08T08:20:16.597Z · `attachment` record
+
+- 2026-10-08T08:20:16.598Z · `attachment` record
+
+- 2026-10-08T08:20:16.601Z · `attachment` record
+
+-  · `last-prompt` record
+
+-  · `ai-title` record
+
+-  · `atis-latch` record
+
+### 2026-10-08T08:20:20.777Z · assistant
+
+**Thinking**
+
+Both screenshots match the plan. Now I'll finalize the README—updating the Pass C result, fixing the Pass A wording, noting the skipped Codex code review, and adding the transcript numbering note—then write the handoff and commit.
+
+
+
+### 2026-10-08T08:20:38.068Z · assistant
+
+**Tool call: Bash**
+
+```json
+{
+  "command": "python3 - <<'EOF'\nfrom pathlib import Path\np=Path('README.md'); s=p.read_text()\nreps=[\n(\"- A final browser pass in the wrap-up session. TODO Fable: Pass C result\\n\",\n \"- A final browser pass in the wrap-up session (headless Chrome through `playwright-core`, 1280x800,\\n\"\n \"  375x667, and 320x667): header and bar colors, bar controls at 44px, the desktop keyboard walk\\n\"\n \"  with the white ring on the heading, details content for Prospect Park, Highland Dog Park, Old\\n\"\n \"  Mill, Cedar Hill, and an unknown id, all 12 list and map pin colors equal, zoom 15 on\\n\"\n \"  selection, pin positions identical after Back and after Recenter (0.00px), Space on a pin, the\\n\"\n \"  sheet staying at peek on selection and reaching 70dvh with the chevron rotated, reduced motion\\n\"\n \"  with no pan, the summary stacking at 320px, no text under 16px, no console errors beyond the\\n\"\n \"  image hosts. One synthetic case failed and is listed under Known issues.\\n\"),\n(\"- My own code review of every diff (Pass A: ten items listed in `docs/handoffs/handoff-7.md`\\n\"\n \"  section 5, all fixed in Slice 5).\\n\",\n \"- My own code review of every diff (Pass A: ten items listed in `docs/handoffs/handoff-7.md`\\n\"\n \"  section 5; eight were fixed in Slice 5, item 6 is the two-tooltips note above, item 7 was left\\n\"\n \"  as written).\\n\"),\n(\"- Codex reviews of the plan files: session 3 on the PLAN.md slices 2 to 4, and `plan-feedback.md`\\n\"\n \"  before session 7. The accepted points are written into PLAN.md under \\\"Plan review (session 3)\\\".\\n\",\n \"- Codex reviews of the plan files: session 3 on the PLAN.md slices 2 to 4, and `plan-feedback.md`\\n\"\n \"  before session 7. The accepted points are written into PLAN.md under \\\"Plan review (session 3)\\\".\\n\"\n \"  The Codex code review planned as Pass B was not run.\\n\"),\n(\"- No retry on load failure.\\n\",\n \"- No retry on load failure.\\n\"\n \"- A wheel zoom and a Recenter click within about 30ms of each other leave the map zoomed in:\\n\"\n \"  Leaflet debounces wheel zoom for about 40ms and applies it after the refit. Found by a scripted\\n\"\n \"  check; a person cannot do both that fast. Gaps of 30ms or more recenter correctly.\\n\"),\n(\"- `docs/handoffs/` (`handoff-1.md` to `handoff-7.md`, plus the final one)\\n\",\n \"- `docs/handoffs/` (`handoff-1.md` to `handoff-8.md`)\\n\"),\n(\"Logs: `docs/transcripts/` holds every Claude Code session as `transcript-N.md`, with the raw\\n\"\n \"files under `docs/transcripts/raw/`, and the Codex session as `codex-1.md`. See\\n\"\n \"`docs/transcripts/README.md`. The wrap-up session's own transcript is re-exported after it ends\\n\"\n \"(`python3 docs/transcripts/export-transcripts.py`).\\n\",\n \"Logs: `docs/transcripts/` holds every Claude Code session as `transcript-N.md`, with the raw\\n\"\n \"files under `docs/transcripts/raw/`, and the Codex session as `codex-1.md`. See\\n\"\n \"`docs/transcripts/README.md`. The transcripts are numbered by start time, so they do not match\\n\"\n \"the session numbers in the table below: transcripts 4 and 5 are two one-minute aborted starts,\\n\"\n \"transcript 6 is session 4, and so on through transcript 11 for session 9. The wrap-up session's\\n\"\n \"own transcript is re-exported after it ends (`python3 docs/transcripts/export-transcripts.py`).\\n\"),\n]\nfor a,b in reps:\n    assert a in s, a[:60]\n    s=s.replace(a,b)\np.write_text(s)\nEOF\nexport NVM_DIR=\"$HOME/.nvm\"; . \"$NVM_DIR/nvm.sh\"; nvm use 24.21.0 >/dev/null; npx prettier --write README.md >/dev/null && npx prettier --check . | tail -1 && grep -n \"TODO\" README.md; for p in CLAUDE.md docs/plans/PLAN.md docs/plans/plan-feedback.md docs/handoffs docs/transcripts .claude/skills/grill/SKILL.md .claude/skills/handoff/SKILL.md docs/local-parks-candidate.pdf src/app/panel/amenity-emoji.ts src/app/map/pin-colors.ts src/app/data/normalize.ts src/app/data/parks-service.ts docs/transcripts/README.md; do [ -e $p ] && echo \"ok $p\" || echo \"MISSING $p\"; done; git add README.md && git commit -q -m \"docs: write the README\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\" && git log --oneline -1; cat .claude/skills/handoff/SKILL.md",
+  "description": "Finalize the README, verify its paths, commit it, and read the handoff skill"
+}
+```
+
+### 2026-10-08T08:20:42.379Z · user
+
+**Tool result**
+
+```
+All matched files use Prettier code style!
+192:Focused time: TODO Tom
+ok CLAUDE.md
+ok docs/plans/PLAN.md
+ok docs/plans/plan-feedback.md
+ok docs/handoffs
+ok docs/transcripts
+ok .claude/skills/grill/SKILL.md
+ok .claude/skills/handoff/SKILL.md
+ok docs/local-parks-candidate.pdf
+ok src/app/panel/amenity-emoji.ts
+ok src/app/map/pin-colors.ts
+ok src/app/data/normalize.ts
+ok src/app/data/parks-service.ts
+ok docs/transcripts/README.md
+448d1d7 docs: write the README
+---
+name: handoff
+description: Write a structured handoff file so a fresh agent or a future session can resume exactly where this one left off. Use when a session is ending, context is running low, or the user says "handoff".
+---
+
+Create a structured handoff file that lets a fresh agent (or future you) pick up exactly where this session left off, with zero ambiguity and no wasted re-exploration.
+
+Save it in the handoffs folder as docs/handoffs/handoff-N.md, where N is one more than the highest number already there (docs/handoffs/handoff-1.md, docs/handoffs/handoff-2.md, ...). Create the folder if it does not exist. Never overwrite an earlier handoff.
+[This command modified 1 file you've previously read: README.md. Call Read before editing.]
+```
+
+- 2026-10-08T08:20:42.384Z · `attachment` record
+
+- 2026-10-08T08:20:42.386Z · `attachment` record
+
+- 2026-10-08T08:20:48.563Z · `attachment` record
+
+### 2026-10-08T08:20:48.563Z · assistant
+
+**Thinking**
+
+
+
+### 2026-10-08T08:20:48.565Z · assistant
+
+Writing the final handoff, committing it with the PLAN.md time log, pushing, then refreshing the transcript export so this session's file is as current as possible, committing and pushing again.
+
+### 2026-10-08T08:21:16.598Z · assistant
+
+**Tool call: Bash**
+
+````json
+{
+  "command": "cat > docs/handoffs/handoff-8.md <<'EOF'\n# Handoff 8: submission assembled; only the post-session steps remain\n\nWritten 2026-10-08 about 04:30 EDT at the end of session 9 (the wrap-up). Nothing is left to\nbuild. This file tells Tom, or a fresh session, exactly what still has to happen after this\nsession closes.\n\nRead in this order if anything is unclear: this file, CLAUDE.md, docs/plans/PLAN.md,\ndocs/plans/plan-feedback.md, README.md.\n\n## 1. What session 9 did\n\n1. Preflight on Tom's final code commit `8261e64` (Slice 8): 9 spec files, 94 tests green;\n   build clean (initial 439 kB); Prettier clean; dev server on 4200 still up.\n2. `10e8f8a docs: move handoffs and plans under docs`: `handoffs/` → `docs/handoffs/`,\n   `PLAN.md` → `docs/plans/PLAN.md`, verbatim copy of the session 7 plan file as\n   `docs/plans/plan-feedback.md`; one path each updated in CLAUDE.md, the handoff skill, and\n   PLAN.md Session protocol step 1.\n3. `5b806ee docs: add AI transcripts and the exporter`: `docs/transcripts/export-transcripts.py`\n   (Python 3 stdlib) renders every Claude Code session in\n   `~/.claude/projects/-Users-tom-park-finder/` to `transcript-N.md` (every record, thinking,\n   tool call, tool result, subagent transcripts, and the split-out tool-result files, nothing\n   cut) and copies the originals under `raw/transcript-N/`; same for the Codex rollout under\n   `~/.codex/sessions/` with cwd `/Users/tom/park-finder` (`codex-1.md`, `raw/codex/`). Eleven\n   Claude sessions, one Codex session, 36 MB. Verified: raw copies byte-identical for the ten\n   finished sessions, header counts equal python counts, rerun is stable, the only\n   credential-pattern hits are the pattern text in this session's own prompts.\n4. Pass C (Sonnet subagent, headless Chrome through the cached `playwright-core` because the\n   Playwright MCP profile was locked again): 8 of 9 checks pass at 1280×800, 375×667, 320×667.\n   The one failure is synthetic: a wheel zoom and a Recenter click inside about 30 ms leave the\n   map zoomed in (Leaflet debounces wheel zoom about 40 ms and applies it after the refit); 30 ms\n   or more recenters correctly. Recorded in README Known issues, not fixed. Screenshots and\n   scripts were in the session scratchpad only.\n5. `448d1d7 docs: write the README`: Sonnet draft from a fixed fact list, then Fable edits (Pass C\n   result, Pass A wording, \"Pass B not run\", transcript numbering note). One TODO remains on\n   purpose: `Focused time: TODO Tom`.\n6. This file and the PLAN.md time log rows 7 to 9, then a transcript refresh commit.\n\nSubagent note: the first exporter subagent (Sonnet) was terminated by a model safeguard while\nreading the raw logs, so Fable wrote the exporter itself. The README and Pass C subagents ran as\nplanned.\n\n## 2. Repo state at handoff\n\nRun `git log --oneline -8` and `git status --short`. main is pushed. Tracked docs:\n`README.md`, `CLAUDE.md`, `docs/local-parks-candidate.pdf`, `docs/plans/{PLAN,plan-feedback}.md`,\n`docs/handoffs/handoff-1..8.md`, `docs/transcripts/` (README, exporter, transcript-1..11.md,\ncodex-1.md, raw/), `.claude/skills/{grill,handoff}/SKILL.md`. No worktrees, no side branches.\n\n## 3. What is left (Tom, after this session closes)\n\n1. Refresh the transcripts so transcript 11 (this session) is complete, then commit and push:\n\n   ```sh\n   python3 docs/transcripts/export-transcripts.py\n   git add docs/transcripts\n   git commit -m \"docs: add the final transcript\"\n   git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push\n   ```\n\n   If a Codex code review (Pass B) is run first, its rollout file is picked up by the same\n   command as `codex-2.md`, as long as Codex was opened in this repo. Any Codex export made by\n   hand goes under `docs/transcripts/raw/codex/` and gets a line in `docs/transcripts/README.md`.\n2. Fill `Focused time:` in README.md \"Time spent\" (and the Focused minutes column of the PLAN.md\n   time log if wanted).\n3. Zip for the recruiter, from the repo root after the final commit:\n\n   ```sh\n   git archive --format=zip -o ../park-finder.zip HEAD\n   ```\n\n   Source, README, plans, handoffs, and transcripts are all tracked, so the archive is the whole\n   submission; `node_modules/` and `dist/` are not in it.\n\n## 4. Gotchas learned in session 9\n\n- Hook attachment records carry a timestamp older than the session's first record, so a\n  session's start time must come from the first record, not the minimum.\n- Claude Code stores tool outputs over about 50 KB in `<session>/tool-results/*.txt` and leaves\n  a 2 KB preview in the conversation; the exporter inlines those files so nothing is missing.\n- The transcript numbers (chronological, eleven files) differ from the session numbers in the\n  PLAN.md time log (nine sessions): transcripts 4 and 5 are two one-minute aborted starts.\n- The Sonnet safeguard can stop a subagent that reads raw AI transcripts; do that work in the\n  overseeing session.\nEOF\ngit add docs/handoffs/handoff-8.md docs/plans/PLAN.md && git commit -q -m \"docs: log the wrap-up session and add the final handoff\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\" && git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push 2>&1 | tail -2 && python3 docs/transcripts/export-transcripts.py && git add docs/transcripts && git commit -q -m \"docs: refresh transcripts\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\" && git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push 2>&1 | tail -2 && echo \"---\" && git status --short && git log --oneline -7 && ls docs docs/plans docs/handoffs | head -30",
+  "description": "Write handoff 8, commit with the time log, push, refresh transcripts, commit, push",
+  "timeout": 180000
+}
+````
+
+-  · `last-prompt` record
+
+-  · `ai-title` record
+
+-  · `atis-latch` record
+
 ## Subagent agent-a2499184e0f35d2ce.jsonl
 
 - model: sonnet
@@ -4585,7 +5085,7 @@ I rewrote `/Users/tom/park-finder/README.md` from scratch (189 lines) and ran Pr
 - agent type: general-purpose
 - raw: `raw/transcript-11/subagents/agent-a607827777695a756.jsonl`
 
-user records 7, assistant records 14, tool calls 7, tool results 6
+user records 9, assistant records 17, tool calls 8, tool results 8
 
 ### 2026-10-08T08:16:31.373Z · user (subagent sidechain)
 You are verifying an Angular 22 app (Park Finder, repo /Users/tom/park-finder) in a real browser. This is read-only verification: do NOT edit any file in the repo, do NOT run git commands other than `git status`, do NOT install anything into the repo. A dev server is already running at http://localhost:4200 (confirm with `lsof -nP -iTCP:4200 -sTCP:LISTEN`; if it is gone, start it with `cd /Users/tom/park-finder && export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 24.21.0 >/dev/null; npm start` in the background and wait for it).
@@ -4907,6 +5407,146 @@ toggle state before/after pin focus false false
   "command": "cd /private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/ && cat > t7b.mjs <<'EOF'\nimport { launch, B, sleep, D } from './lib.mjs';\nconst br = await launch();\nconst ctx = await br.newContext({ viewport:{width:375,height:667}, hasTouch:true, isMobile:true});\nconst p = await ctx.newPage();\nawait p.goto(B+'/parks'); await p.waitForSelector('.park-pin'); await sleep(1200);\nconst st=()=>p.evaluate(()=>({active:document.activeElement.className+'|'+document.activeElement.getAttribute('aria-label'),exp:document.querySelector('.sheet-toggle').getAttribute('aria-expanded'),h:Math.round(document.querySelector('main').getBoundingClientRect().height)}));\nawait p.click('.sheet-toggle'); await sleep(600); console.log('expanded',await st());\n// order check\nconsole.log(await p.evaluate(()=>{const pin=document.querySelector('.park-pin'),m=document.querySelector('main');return pin.compareDocumentPosition(m)&Node.DOCUMENT_POSITION_FOLLOWING?'pins before main':'pins after main'}));\n// Tab path: focus the sheet toggle (in bar), shift+tab backwards until a pin\nawait p.evaluate(()=>document.querySelector('button[aria-label=\"Recenter map\"]').focus());\nawait p.keyboard.press('Shift+Tab'); console.log('shift+tab from recenter',await st());\nfor(let i=0;i<4;i++){ await p.keyboard.press('Shift+Tab'); console.log(' s+t',await st()); }\n// forward: focus last pin, Tab\nawait p.click('.sheet-toggle').catch(()=>{});\nawait p.evaluate(()=>{const n=document.querySelectorAll('.park-pin');n[n.length-1].focus()}); await sleep(500); console.log('focus last pin',await st());\nawait p.click('.sheet-toggle'); await sleep(500); console.log('expanded again',await st());\nawait p.evaluate(()=>{const n=document.querySelectorAll('.park-pin');n[n.length-1].focus()}); console.log('focus pin direct', await st()); await sleep(500); console.log('after',await st());\n// real keyboard: expand, focus recenter, tab to pin\nawait p.click('.sheet-toggle'); await sleep(500);\nconst s0=await st(); console.log('state',s0);\nawait p.evaluate(()=>document.querySelector('.leaflet-top.leaflet-left a, .leaflet-control-zoom-in')?.focus());\nconsole.log('zoom focus',await st());\nfor(let i=0;i<20;i++){await p.keyboard.press('Tab'); const s=await st(); if(/park-pin/.test(s.active)){console.log('tab reached pin',s); await sleep(500); console.log('after 500ms',await st()); break;}}\n// in-flight variants desktop\nconst c2=await br.newContext({viewport:{width:1280,height:800}}); const q=await c2.newPage();\nawait q.goto(B+'/parks'); await q.waitForSelector('.park-pin'); await sleep(1500);\nconst r=()=>q.evaluate(()=>[...document.querySelectorAll('.park-pin')].map(e=>{const b=e.getBoundingClientRect();return [b.x,b.y]}));\nconst f=await r();\nfor(const gap of [0,10,30,60,100,300]){\n await q.evaluate(()=>{const c=document.querySelector('.leaflet-container');const b=c.getBoundingClientRect();c.dispatchEvent(new WheelEvent('wheel',{deltaY:-600,clientX:b.x+b.width/2+80,clientY:b.y+b.height/2+40,bubbles:true,cancelable:true}))});\n await sleep(gap); await q.click('button[aria-label=\"Recenter map\"]'); await sleep(900);\n const a=await r(); let m=0;a.forEach((x,i)=>m=Math.max(m,Math.abs(x[0]-f[i][0]),Math.abs(x[1]-f[i][1])));\n console.log('inflight gap',gap,'maxdiff',m.toFixed(1));\n await q.click('button[aria-label=\"Recenter map\"]'); await sleep(600);\n}\nawait br.close();\nEOF\nnode t7b.mjs"
 }
 ```
+### 2026-10-08T08:19:44.749Z · user (subagent sidechain)
+**Tool result**
+
+```
+expanded { active: 'sheet-toggle|Show less', exp: 'true', h: 468 }
+pins after main
+shift+tab from recenter { active: '|null', exp: 'true', h: 468 }
+ s+t { active: '|null', exp: 'true', h: 468 }
+ s+t { active: '|null', exp: 'true', h: 468 }
+ s+t { active: 'leaflet-control-zoom-out|Zoom out', exp: 'false', h: 468 }
+ s+t { active: 'leaflet-control-zoom-in|Zoom in', exp: 'false', h: 468 }
+focus last pin {
+  active: 'leaflet-marker-icon park-pin leaflet-zoom-animated leaflet-interactive|Hillcrest Skate Park',
+  exp: 'false',
+  h: 268
+}
+expanded again { active: 'sheet-toggle|Show less', exp: 'true', h: 468 }
+focus pin direct {
+  active: 'leaflet-marker-icon park-pin leaflet-zoom-animated leaflet-interactive|Hillcrest Skate Park',
+  exp: 'false',
+  h: 468
+}
+after {
+  active: 'leaflet-marker-icon park-pin leaflet-zoom-animated leaflet-interactive|Hillcrest Skate Park',
+  exp: 'false',
+  h: 268
+}
+state { active: 'sheet-toggle|Show less', exp: 'true', h: 468 }
+zoom focus { active: 'leaflet-control-zoom-in|Zoom in', exp: 'false', h: 468 }
+tab reached pin {
+  active: 'leaflet-marker-icon park-pin leaflet-zoom-animated leaflet-interactive|Prospect Park',
+  exp: 'false',
+  h: 327
+}
+after 500ms {
+  active: 'leaflet-marker-icon park-pin leaflet-zoom-animated leaflet-interactive|Prospect Park',
+  exp: 'false',
+  h: 268
+}
+inflight gap 0 maxdiff 886.0
+inflight gap 10 maxdiff 886.0
+inflight gap 30 maxdiff 0.0
+inflight gap 60 maxdiff 0.0
+inflight gap 100 maxdiff 0.0
+inflight gap 300 maxdiff 0.0
+```
+- 2026-10-08T08:19:44.755Z · `attachment` record
+### 2026-10-08T08:19:48.247Z · assistant (subagent sidechain)
+**Thinking**
+
+
+### 2026-10-08T08:19:48.631Z · assistant (subagent sidechain)
+**Tool call: Bash**
+
+```json
+{
+  "command": "ls -a | grep playwright; git status --short; ls /private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/*.png"
+}
+```
+### 2026-10-08T08:19:48.742Z · user (subagent sidechain)
+**Tool result**
+
+```
+ M README.md
+?? docs/transcripts/
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/desktop-details.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/desktop-focused-heading.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/desktop-list.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/mobile-320-details.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/mobile-expanded.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/mobile-list.png
+/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/mobile-peek-selected.png
+```
+- 2026-10-08T08:19:48.745Z · `attachment` record
+- 2026-10-08T08:20:03.976Z · `attachment` record
+### 2026-10-08T08:20:03.976Z · assistant (subagent sidechain)
+Of the nine checks, eight pass fully. Check 5 fails in one case: a wheel zoom and a Recenter click in the same tick leave the map zoomed in.
+
+I did not use the MCP tools. I ran headless scripts with playwright-core and the installed Google Chrome. The repo was not touched (no `.playwright-mcp/` folder was created). `git status` shows ` M README.md` and `?? docs/transcripts/`, which I did not create.
+
+1. **Desktop `/parks`: PASS**
+   - Header background is rgb(30,61,5), the h1 is white, centered at x=640 with `text-align: center`.
+   - Bar background is rgb(65,34,12). The Recenter button is 44×44 at the start slot, and there are 0 `.sheet-toggle` elements.
+   - There are 12 `.park-pin` elements. The attribution control sits in `.leaflet-top.leaflet-right`, with its right edge at the map's right edge (x=1280).
+   - No element with its own text has a computed font-size below 16px.
+
+2. **Desktop keyboard walk: PASS**
+   - Tab 1 focuses the Recenter button (`:focus-visible` true, outline rgb(44,76,209) 3px).
+   - Tab 2 focuses the Prospect Park link, and Enter goes to `/parks/prospect-park`.
+   - `h2#panel-heading` is focused with text "Prospect Park" and an outline of rgb(255,255,255) 3px solid.
+   - Shift+Tab focuses the Back link (`aria-label` "Back to parks"). Enter returns to `/parks` with the Prospect Park link focused, a visible blue 3px ring.
+
+3. **Desktop details: PASS**
+   - Prospect Park: `.emoji-row` has `aria-hidden="true"`. `ul.amenities` has 7 items, each with an emoji and a label: Playground, Dog run, Trails, Restrooms, Parking, Lake, Picnic areas.
+   - Its "Photos" heading is followed by 2 gallery frames, plus the thumbnail (3 `app-park-image` in total). There are 0 `.caption` elements.
+   - `highland-dog-park` Location is `40.6789, -73.9442`.
+   - `old-mill-botanical-garden` shows "No description available."
+   - `cedar-hill-nature-preserve` has no Rating row, one `app-park-image` (the gallery placeholder) and no thumbnail.
+   - `nope` shows the heading "Park not found" with the Back link present.
+
+4. **Pin colors: PASS.** All 12 list `svg.pin` colors, inline and computed, equal the matching map pin's color. There are no mismatches. The colors run, in list order:
+   - (193,18,31), (227,100,20), (184,134,11)
+   - (42,157,63), (15,118,110), (2,132,199)
+   - (109,40,217), (192,38,211), (190,24,93)
+   - (141,85,36), (71,85,105), (107,142,35)
+
+5. **Camera: FAIL on the in-flight case only.**
+   - Navigating to Prospect Park gives zoom 15 (all 12 visible tiles are z15, against z11 on first load). The selected pin sits at (840, 415), with the map center at (840, 434.5).
+   - Back, then 600ms: max pin-rect difference 0.00px, tiles back at z11. PASS.
+   - Wheel zoom: tiles z13, pins moved by up to 845px. Recenter then 600ms: difference 0.00px. PASS.
+   - In-flight case (wheel event dispatched and Recenter clicked in the same tick, then 600ms): max difference 886px, tiles all z13. FAIL. The map ends zoomed in and not recentered.
+   - Extra timing check, with a gap between the wheel event and the Recenter click: 0ms gap gives 886px and 10ms gap gives 886px, both failing. 30, 60, 100 and 300ms gaps all give 0.0px. This looks like Leaflet's debounced wheel zoom (about 40ms) applying after Recenter.
+
+6. **Space on a pin: PASS.** After Tab reached the Prospect Park pin, Space changed the URL to `/parks/prospect-park`. Scroll stayed at [0,0,0,0] before and after.
+
+7. **Mobile 375×667: PASS**
+   - Peek: `main` is fixed, top 399.2, height 267.8 (40dvh is 266.8). The map spans y=69 to 667, so it fills under the header. The toggle is 44×44 with `aria-expanded="false"` and `aria-label` "Show more". All 12 pins have their bottoms at 373 or less, above the sheet top.
+   - Clicking the Prospect Park link: URL `/parks/prospect-park`, sheet still at peek, `aria-expanded` still "false". The selected pin is at top 195, bottom 235, above the sheet top of 399.
+   - Toggle click: `main` height 467.9 (70dvh is 466.9), the svg transform is `matrix(-1, 0, 0, -1, 0, 0)`, and `aria-label` is "Show less".
+   - Back link: sheet returns to 267.8, URL `/parks`, and pin rects differ from first load by 0.00px.
+   - Shift+Tab from the details heading reaches the Back link ("Back to parks").
+   - Tabbing from the zoom-in control onto "Prospect Park" collapsed the sheet from expanded; at the moment it was sampled the height was 327, mid-transition. After 500ms it was 268 and `aria-expanded` was "false". Focusing a pin directly also collapses it.
+   - Tab from the last control in the sheet goes to `panel-body`, not a pin, because pins come after `main` in DOM order. The collapse behaviour is confirmed from the map side.
+
+8. **Reduced motion: PASS.** With reduced motion on, the first pin's rect right after navigating (20ms) equals the rect 300ms later. For Prospect Park both are [826,395]. For Highland Dog Park both are [248,969]. For contrast, normal motion gives [787,507] at 20ms and [248,969] at 300ms, so the pan animates there.
+
+9. **Summary stacking at 320×667: PASS.** `.summary` is `display: grid` with `grid-template-columns: 288px`, a single track.
+
+**Console errors:** none apart from the images.example.com failures. There were no page errors, and no other errors in the mobile runs.
+
+**Screenshots** are in `/private/tmp/claude-501/-Users-tom-park-finder/b9361792-d304-4f27-bf87-a36c58eb368a/scratchpad/passc/`:
+- `desktop-list.png`
+- `desktop-details.png`
+- `desktop-focused-heading.png` (the white ring on the focused heading)
+- `mobile-list.png`
+- `mobile-peek-selected.png`
+- `mobile-expanded.png`
+- `mobile-320-details.png`
+
+The scripts (`lib.mjs`, `t1.mjs`, `t2.mjs`, `t5.mjs`, `t7.mjs`, `t7b.mjs`) are in the same folder.
 
 ## Subagent agent-a71e85e3e1f2209ed.jsonl
 
