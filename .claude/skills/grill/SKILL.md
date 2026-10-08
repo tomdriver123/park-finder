@@ -1,10 +1,6 @@
 ---
 name: grill
-description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
+description: Interview me about a plan until we share an understanding. Use before any implementation.
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
-
-Ask the questions one at a time.
-
-If a question can be answered by exploring the codebase, explore the codebase instead.
+Interview me about the plan until we reach a shared understanding. Treat it as a design tree. Ask every question whose prerequisites are settled in one numbered round, give your recommended answer for each, and word each question so 'yes' accepts your recommendation. Look up facts yourself, only decisions come to me. Wait for my answers before the next round. Stop when nothing is silently assumed, and do not build until I confirm.
