@@ -5,7 +5,6 @@ import {
   afterRenderEffect,
   computed,
   input,
-  untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -49,6 +48,7 @@ export class ParkPanel {
       const links = this.parkLinks();
 
       if (id !== undefined) {
+        // A re-run with the same id (for example a viewChild signal change) must not re-steal focus.
         if (id !== this.lastFocusedId && detailsHeading) {
           detailsHeading.nativeElement.focus();
           this.lastFocusedId = id;
@@ -57,8 +57,8 @@ export class ParkPanel {
         return;
       }
 
-      // Back in list mode after a details view: wait until loading is over, then restore focus.
-      if (this.lastFocusedId === undefined || untracked(this.loading)) {
+      // Back in list mode after a details view: restore focus to the park link.
+      if (this.lastFocusedId === undefined) {
         return;
       }
       const link = links.find((ref) => ref.nativeElement.dataset['parkId'] === this.lastOpenedId);

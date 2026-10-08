@@ -26,7 +26,6 @@
 } @else {
   @if (selected(); as park) {
     <article>
-      <a class="back" routerLink="/parks">Back to parks</a>
       <h2 tabindex="-1" #detailsHeading>{{ park.name }}</h2>
       <dl>
         <dt>Location</dt>
@@ -72,6 +71,5 @@
     </article>
   } @else {
     <h2 tabindex="-1" #detailsHeading>Park not found</h2>
-    <a class="back" routerLink="/parks">Back to parks</a>
   }
 }

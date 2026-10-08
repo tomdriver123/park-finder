@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ParksService } from './data/parks-service';
 import { ParkMap } from './map/park-map';
 import { ParkPanel } from './panel/park-panel';
@@ -21,7 +21,7 @@ const MOBILE_QUERY = '(max-width: 767.98px)';
 
 @Component({
   selector: 'app-parks-page',
-  imports: [ParkPanel, ParkMap],
+  imports: [RouterLink, ParkPanel, ParkMap],
   templateUrl: './parks-page.html',
   styleUrl: './parks-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,11 +36,13 @@ export class ParksPage {
   protected readonly loading = this.parksService.loading;
   protected readonly error = this.parksService.error;
 
-  /** Selecting a park expands the sheet, the list collapses it; the toggle overrides until the next navigation. */
+  /** Every navigation returns the sheet to peek; only the toggle expands it. */
   protected readonly expanded = linkedSignal({
     source: this.id,
-    computation: (id) => id !== undefined,
+    computation: () => false,
   });
+  /** Incremented by Recenter; ParkMap refits when it changes. */
+  protected readonly fitRequest = signal(0);
   protected readonly isMobile = signal(false);
   private readonly sheetHeight = signal(0);
   protected readonly centerOffset = computed(() => (this.isMobile() ? this.sheetHeight() : 0));
@@ -74,6 +76,13 @@ export class ParksPage {
 
   protected toggleSheet(): void {
     this.expanded.update((value) => !value);
+  }
+
+  protected recenter(): void {
+    this.fitRequest.update((value) => value + 1);
+    if (this.isMobile()) {
+      this.expanded.set(false);
+    }
   }
 
   /** A marker reached by Tab must not sit behind the expanded sheet. */

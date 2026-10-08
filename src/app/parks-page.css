@@ -23,26 +23,36 @@ main {
   overflow-y: auto;
 }
 
-.sheet-bar {
+.panel-bar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-3) 0;
 }
 
+.back,
+.recenter,
 .sheet-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
-  padding: var(--space-2) var(--space-3);
+  padding: 0;
   border: 0;
   border-radius: var(--radius);
   background: var(--color-tertiary);
   color: var(--color-surface);
-  font: inherit;
-  font-size: 1rem;
   cursor: pointer;
 }
 
-.sheet-toggle:hover {
-  text-decoration: underline;
+.sheet-toggle svg {
+  transition: transform 200ms ease;
+}
+
+main.is-expanded .sheet-toggle svg {
+  transform: rotate(180deg);
 }
 
 /* Keep in sync with isMobile() in parks-page.ts */
@@ -60,7 +70,7 @@ main {
   }
 
   main.is-expanded {
-    height: 85dvh;
+    height: 70dvh;
   }
 }
 
@@ -75,7 +85,6 @@ main {
 
   main {
     min-height: 0;
-    overflow-y: auto;
   }
 
   aside {

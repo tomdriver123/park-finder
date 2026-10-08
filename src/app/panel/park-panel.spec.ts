@@ -190,12 +190,9 @@ describe('ParkPanel', () => {
       expect(el(fixture).querySelector('.caption')).toBeNull();
     });
 
-    it('says park not found for an unknown id, links back, and focuses the heading', async () => {
+    it('says park not found for an unknown id and focuses the heading', async () => {
       const fixture = await render({ selectedId: 'nope' });
       expect(text(h2(fixture))).toBe('Park not found');
-      const back = el(fixture).querySelector('a');
-      expect(back?.getAttribute('href')).toBe('/parks');
-      expect(text(back)).toBe('Back to parks');
       expect(document.activeElement).toBe(h2(fixture));
     });
 
@@ -250,14 +247,16 @@ describe('ParkPanel', () => {
       fixture.componentRef.setInput('selectedId', 'prospect-park');
       await fixture.whenStable();
       expect(document.activeElement).toBe(h2(fixture));
-      const back = el(fixture).querySelector('article a') as HTMLAnchorElement;
-      back.focus();
-      expect(document.activeElement).toBe(back);
+      // h3 is not focusable by default; tabindex lets the test park focus inside the article.
+      const other = el(fixture).querySelector('article h3') as HTMLHeadingElement;
+      other.tabIndex = -1;
+      other.focus();
+      expect(document.activeElement).toBe(other);
       img(fixture).dispatchEvent(new Event('load'));
       await fixture.whenStable();
       fixture.componentRef.setInput('parks', normalizeParks(sample));
       await fixture.whenStable();
-      expect(document.activeElement).toBe(back);
+      expect(document.activeElement).toBe(other);
     });
 
     it('focuses the heading on a deep link', async () => {

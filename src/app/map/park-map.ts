@@ -26,6 +26,13 @@ import { Park } from '../data/park';
 
 const SELECTED_Z_OFFSET = 1000;
 
+interface CameraRequest {
+  leafletMap: LeafletMap;
+  markers: Map<string, Marker>;
+  selected: Marker | undefined;
+  offset: number;
+}
+
 const pinIcon = divIcon({
   className: 'park-pin',
   html:
@@ -49,6 +56,8 @@ export class ParkMap {
   readonly parks = input.required<Park[]>();
   readonly selectedId = input<string | undefined>();
   readonly centerOffset = input(0);
+  /** A change refits the map to every park when nothing is selected (the Recenter button). */
+  readonly fitRequest = input(0);
   readonly select = output<string>();
 
   private readonly container = viewChild.required<ElementRef<HTMLDivElement>>('container');
@@ -56,12 +65,29 @@ export class ParkMap {
   private readonly leafletMap = signal<LeafletMap | undefined>(undefined);
   private readonly markers = signal<Map<string, Marker>>(new Map());
   private selectedMarker: Marker | undefined;
+  /** True only while a Leaflet zoom animation runs; set and cleared by zoomstart and zoomend. */
+  private zooming = false;
+  /** The latest camera request, held until a running zoom animation ends. */
+  private pending: CameraRequest | undefined;
 
   constructor() {
     const destroyRef = inject(DestroyRef);
 
     afterNextRender(() => {
       const leafletMap = map(this.container().nativeElement);
+      // Leaflet drops camera calls made mid-animation, so hold the latest one until zoomend.
+      // These handlers touch only Leaflet and plain fields, so no signal write is needed.
+      leafletMap.on('zoomstart', () => {
+        this.zooming = true;
+      });
+      leafletMap.on('zoomend', () => {
+        this.zooming = false;
+        const request = this.pending;
+        this.pending = undefined;
+        if (request) {
+          this.applyCamera(request);
+        }
+      });
       leafletMap.attributionControl.setPosition('topright');
       tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -98,10 +124,11 @@ export class ParkMap {
       const markers = this.markers();
       const selected = markers.get(this.selectedId() ?? '');
       const offset = this.centerOffset();
+      this.fitRequest();
       if (!leafletMap || markers.size === 0) {
         return;
       }
-      this.moveCamera(leafletMap, markers, selected, offset);
+      this.moveCamera({ leafletMap, markers, selected, offset });
       this.markSelected(selected);
     });
   }
@@ -123,9 +150,14 @@ export class ParkMap {
       // Leaflet adds a marker only once the map has a view, so the element is labelled on add.
       m.on('add', () => m.getElement()?.setAttribute('aria-label', park.name));
       m.on('click', () => this.select.emit(park.id));
-      // Leaflet maps Enter to click only for markers with a popup, so handle it here.
+      // Leaflet maps Enter to click only for markers with a popup, so handle Enter and Space here.
       m.on('keypress', (e: LeafletKeyboardEvent) => {
-        if (e.originalEvent.keyCode === 13) {
+        const event = e.originalEvent;
+        const space = event.key === ' ' || event.keyCode === 32;
+        if (space) {
+          event.preventDefault(); // keeps the page from scrolling
+        }
+        if (space || event.keyCode === 13) {
           this.select.emit(park.id);
         }
       });
@@ -135,12 +167,16 @@ export class ParkMap {
     return markers;
   }
 
-  private moveCamera(
-    leafletMap: LeafletMap,
-    markers: Map<string, Marker>,
-    selected: Marker | undefined,
-    offset: number,
-  ): void {
+  private moveCamera(request: CameraRequest): void {
+    this.pending = request;
+    if (this.zooming) {
+      return;
+    }
+    this.pending = undefined;
+    this.applyCamera(request);
+  }
+
+  private applyCamera({ leafletMap, markers, selected, offset }: CameraRequest): void {
     const animate = !(
       typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
     );
@@ -149,10 +185,14 @@ export class ParkMap {
       leafletMap.setView(leafletMap.unproject(point, 15), 15, { animate });
     } else {
       const bounds = latLngBounds([...markers.values()].map((m) => m.getLatLng()));
+      // animate: false because Leaflet drops fitBounds/setView calls that land while a zoom
+      // animation is running (_tryAnimatedZoom returns true while _animatingZoom is set), which
+      // left the map zoomed out after the sheet resized. List <-> park moves never animated
+      // anyway: the zoom change exceeds Leaflet's 4-level zoomAnimationThreshold.
       leafletMap.fitBounds(bounds, {
-        padding: [24, 24],
+        paddingTopLeft: [24, 40],
         paddingBottomRight: [24, 24 + offset],
-        animate,
+        animate: false,
       });
     }
   }

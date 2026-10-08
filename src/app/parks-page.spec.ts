@@ -119,10 +119,40 @@ describe('ParksPage (integration)', () => {
     expect(pin?.classList.contains('is-selected')).toBe(true);
   });
 
-  it('renders no sheet toggle on desktop', async () => {
+  function bar(): HTMLElement {
+    return root().querySelector<HTMLElement>('main .panel-bar')!;
+  }
+
+  function precedes(a: Element | null, b: Element | null): boolean {
+    return !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  }
+
+  it('shows Recenter and no sheet toggle in the desktop bar', async () => {
     await go('/parks');
     await flushSample();
+    expect(bar().querySelector('button[aria-label="Recenter map"]')).not.toBeNull();
     expect(root().querySelector('button[aria-controls="sheet"]')).toBeNull();
+  });
+
+  it('replaces Recenter with an icon-only Back link before the heading when a park opens', async () => {
+    await go('/parks/prospect-park');
+    await flushSample();
+    const back = bar().querySelector('a[href="/parks"]');
+    expect(back).not.toBeNull();
+    expect(back?.getAttribute('aria-label')).toBe('Back to parks');
+    expect(back?.textContent?.trim()).toBe('');
+    expect(back?.querySelectorAll('svg[aria-hidden="true"]').length).toBe(1);
+    expect(bar().querySelector('button[aria-label="Recenter map"]')).toBeNull();
+    expect(precedes(back, root().querySelector('h2'))).toBe(true);
+  });
+
+  it('shows the Back link for an unknown park id', async () => {
+    await go('/parks/nope');
+    await flushSample();
+    expect(heading()).toBe('Park not found');
+    expect(bar().querySelector('a[href="/parks"]')?.getAttribute('aria-label')).toBe(
+      'Back to parks',
+    );
   });
 
   describe('mobile sheet', () => {
@@ -149,26 +179,37 @@ describe('ParksPage (integration)', () => {
       return root().querySelector<HTMLButtonElement>('main button[aria-controls="sheet"]')!;
     }
 
-    it('toggle button starts collapsed and expands on click', async () => {
+    function recenter(): HTMLButtonElement {
+      return bar().querySelector<HTMLButtonElement>('button[aria-label="Recenter map"]')!;
+    }
+
+    it('toggle starts collapsed as an icon-only Show more and expands on click', async () => {
       await go('/parks');
       await flushSample();
-      expect(toggle().textContent?.trim()).toBe('Show more');
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
+      expect(toggle().getAttribute('aria-label')).toBe('Show more');
+      expect(toggle().textContent?.trim()).toBe('');
 
       toggle().click();
       await harness.fixture.whenStable();
       expect(toggle().getAttribute('aria-expanded')).toBe('true');
-      expect(toggle().textContent?.trim()).toBe('Show less');
+      expect(toggle().getAttribute('aria-label')).toBe('Show less');
       expect(root().querySelector('main')?.classList.contains('is-expanded')).toBe(true);
     });
 
-    it('navigating to a park expands the sheet, back collapses it', async () => {
+    it('navigating to a park keeps the sheet collapsed, back collapses an expanded sheet', async () => {
       await go('/parks');
       await flushSample();
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
 
       await go('/parks/prospect-park');
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+
+      toggle().click();
+      await harness.fixture.whenStable();
       expect(toggle().getAttribute('aria-expanded')).toBe('true');
+      expect(toggle().getAttribute('aria-label')).toBe('Show less');
+      expect(root().querySelector('main')?.classList.contains('is-expanded')).toBe(true);
 
       await go('/parks');
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
@@ -177,6 +218,8 @@ describe('ParksPage (integration)', () => {
     it('focus moving into the map collapses the expanded sheet', async () => {
       await go('/parks/prospect-park');
       await flushSample();
+      toggle().click();
+      await harness.fixture.whenStable();
       expect(toggle().getAttribute('aria-expanded')).toBe('true');
 
       root()
@@ -184,6 +227,31 @@ describe('ParksPage (integration)', () => {
         ?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
       await harness.fixture.whenStable();
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('Recenter collapses the expanded sheet', async () => {
+      await go('/parks');
+      await flushSample();
+      toggle().click();
+      await harness.fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+
+      recenter().click();
+      await harness.fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('the bar holds Recenter in list mode and Back in details mode', async () => {
+      await go('/parks');
+      await flushSample();
+      expect(recenter()).not.toBeNull();
+      expect(bar().querySelector('a[href="/parks"]')).toBeNull();
+
+      await go('/parks/prospect-park');
+      expect(bar().querySelector('button[aria-label="Recenter map"]')).toBeNull();
+      expect(bar().querySelector('a[href="/parks"]')?.getAttribute('aria-label')).toBe(
+        'Back to parks',
+      );
     });
 
     it('main precedes aside in the DOM', async () => {

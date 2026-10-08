@@ -1,10 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Map as LeafletMap } from 'leaflet';
 import sample from '../../../public/assets/parks.sample.json';
 import { normalizePark, normalizeParks } from '../data/normalize';
 import { Park } from '../data/park';
 import { ParkMap } from './park-map';
 
 const sampleParks = normalizeParks(sample);
+
+// Leaflet's public init hook hands the test each map ParkMap creates, without reaching into it.
+let lastMap: LeafletMap | undefined;
+LeafletMap.addInitHook(function (this: LeafletMap) {
+  lastMap = this;
+});
 
 function edgePark(raw: Record<string, unknown>): Park {
   const park = normalizePark(raw);
@@ -145,5 +152,47 @@ describe('ParkMap', () => {
       '[aria-label="Map of parks"] .leaflet-tooltip',
     );
     expect(tooltip?.textContent).toBe('Prospect Park');
+  });
+
+  it('emits the park id when Space is pressed on a pin', async () => {
+    const fixture = await render(sampleParks);
+    const ids = emitted(fixture);
+
+    pinFor(fixture, 'Prospect Park').dispatchEvent(
+      new KeyboardEvent('keypress', { key: ' ', keyCode: 32, bubbles: true, cancelable: true }),
+    );
+
+    expect(ids).toEqual(['prospect-park']);
+  });
+
+  it('marks the map container as a labelled region', async () => {
+    const fixture = await render(sampleParks);
+    const container = (fixture.nativeElement as HTMLElement).querySelector(
+      '[aria-label="Map of parks"]',
+    );
+
+    expect(container?.getAttribute('role')).toBe('region');
+  });
+
+  it('leaves every pin unselected when a refit is requested with no selection', async () => {
+    const fixture = await render(sampleParks);
+
+    fixture.componentRef.setInput('fitRequest', 1);
+    await fixture.whenStable();
+
+    expect(pins(fixture).some((pin) => pin.classList.contains('is-selected'))).toBe(false);
+  });
+
+  it('applies a selection requested during a zoom animation once the zoom ends', async () => {
+    const fixture = await render(sampleParks);
+    const leafletMap = lastMap!;
+
+    leafletMap.fire('zoomstart');
+    fixture.componentRef.setInput('selectedId', 'highland-dog-park');
+    await fixture.whenStable();
+    leafletMap.fire('zoomend');
+
+    expect(pinFor(fixture, 'Highland Dog Park').classList.contains('is-selected')).toBe(true);
+    expect(leafletMap.getZoom()).toBe(15);
   });
 });
