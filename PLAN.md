@@ -430,6 +430,6 @@ during sessions, and the README says so.
 | 2       | This plan              |                 | ~60 (00:35–01:45) |
 | 3       | Slice 1, plan review   |                 | ~30 (01:45–02:15) |
 | 4       | Slice 2                |                 | ~15 (02:15–02:30) |
-| 5       | Slice 3                |                 |                   |
+| 5       | Slice 3                |                 | ~20 (02:15–02:35) |
 | 6       | Slice 4                |                 |                   |
 | 7       | Wrap-up                |                 |                   |
