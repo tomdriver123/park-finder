@@ -94,4 +94,26 @@ describe('ParksPage (integration)', () => {
     await flushSample();
     expect(heading()).toBe('Park not found');
   });
+
+  it('renders a pin for each park in the map aside', async () => {
+    await go('/parks');
+    await flushSample();
+    expect(root().querySelectorAll('aside .park-pin').length).toBe(12);
+    expect(root().querySelector('aside')?.getAttribute('aria-label')).toBe('Map');
+    expect(root().querySelector('main')?.nextElementSibling?.tagName).toBe('ASIDE');
+  });
+
+  it('opens the details when a map pin is selected', async () => {
+    await go('/parks');
+    await flushSample();
+    const pin = Array.from(root().querySelectorAll<HTMLElement>('aside .park-pin')).find(
+      (el) => el.getAttribute('title') === 'Highland Dog Park',
+    );
+    pin?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await harness.fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/parks/highland-dog-park');
+    expect(heading()).toBe('Highland Dog Park');
+    expect(pin?.classList.contains('is-selected')).toBe(true);
+  });
 });

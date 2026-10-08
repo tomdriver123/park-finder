@@ -1,3 +1,6 @@
 <main>
   <app-park-panel [parks]="parks()" [loading]="loading()" [error]="error()" [selectedId]="id()" />
 </main>
+<aside aria-label="Map">
+  <app-park-map [parks]="parks()" [selectedId]="id()" (select)="onSelect($event)" />
+</aside>

@@ -1,0 +1,35 @@
+.park-map {
+  display: block;
+  height: 100%;
+}
+
+.park-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
+  font-family: var(--font);
+}
+
+.park-map .park-pin {
+  color: var(--color-primary);
+}
+
+.park-map .park-pin svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.park-map .park-pin.is-selected {
+  color: var(--color-tertiary);
+}
+
+.park-map .park-pin.is-selected svg {
+  transform: scale(1.3);
+  transform-origin: 50% 100%;
+}
+
+.park-map .park-pin:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}

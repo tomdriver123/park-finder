@@ -7,3 +7,10 @@ main {
   margin: 0 auto;
   padding: var(--space-3);
 }
+
+/* Interim stacked layout for slice 3; slice 4 replaces it. */
+aside {
+  max-width: 48rem;
+  height: 60vh;
+  margin: 0 auto;
+}
