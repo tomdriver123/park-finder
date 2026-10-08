@@ -1,0 +1,4 @@
+# Source documents stay byte-identical to what was supplied
+public/assets/parks.sample.json
+CLAUDE.md
+docs/
