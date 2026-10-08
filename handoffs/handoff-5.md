@@ -88,11 +88,8 @@ files; the panel CSS from slice 2 is meant to survive, slice 4 adds layout aroun
 - After browser Back triggered by a mouse history, the restored list link has focus but no ring:
   Chromium hides `:focus-visible` after pointer input. Keyboard paths always show the ring. Not a
   bug; worth a sentence in the README's "how it was checked".
-- Two review nits left as is, neither blocking: in `park-panel.ts` the `untracked(this.loading)`
-  guard on the return-to-list branch is effectively unreachable (the details heading only renders
-  after loading ends); and the "acted once per id" guard (`id !== this.lastFocusedId`) is not
-  exercised by any test on its own, because the effect only tracks `selectedId` and the view
-  queries so nothing else re-runs it. The subagent checked both by temporarily removing them.
+- Two review notes on the focus effect were left as is on purpose; they are listed in section 6
+  for Tom's wrap-up review.
 - The subagent prompt pattern from handoff-3 section 4 worked again: exact file list, exact test
   cases with expected values, shell prefix, do-not-touch list, no git except diff/status, failing
   run verbatim, and an explicit checklist of the plan-review items.
@@ -104,12 +101,38 @@ files; the panel CSS from slice 2 is meant to survive, slice 4 adds layout aroun
   navigation (`httpTesting.verify()` in `afterEach`). The `matchMedia` stub for the mobile cases
   must be installed before the harness is created.
 
-## 6. Pending at handoff
+## 6. Review items for the wrap-up (Tom asked to keep these)
 
-- A docs commit for the PLAN.md session 4 row and this file. Message suggestion:
-  `docs: log session 4 and add handoff 5`. Needs Tom's "commit". Push with the credential command
-  in PLAN.md step 6. If slice 3 has already rebased and merged, rebase this docs change on top; the
-  time log rows are different lines, so no conflict is expected.
+Both are in the `afterRenderEffect` in `src/app/panel/park-panel.ts`. Neither changes behavior
+today; Tom decided at the end of session 4 to leave them in and review them in Pass A of the
+wrap-up (PLAN.md "Wrap-up" step 1). The slice 4 session should not touch them, and the wrap-up
+session should carry them into PLAN.md as follow-up items if Tom accepts either one.
+
+1. **Unreachable guard, line 61: `untracked(this.loading)`.** The return-to-list branch waits for
+   loading to finish before restoring focus. But that branch only runs when `lastFocusedId` is
+   set, and `lastFocusedId` is only set after a details heading has been focused, which only
+   renders once loading is over. `loading` never goes back to true (no retry in scope), so the
+   guard can never be the reason the branch stops. Options for Pass A: delete the guard (two
+   lines, and the `untracked` import) and let the tests prove nothing depends on it, or keep it as
+   defense for a future retry feature and say so in the comment. The subagent removed it
+   temporarily and all 56 tests still passed.
+
+2. **Once-per-id guard with no test of its own, line 52: `id !== this.lastFocusedId`.** The guard
+   is meant to stop the effect re-focusing the heading if it re-runs for the same id. In practice
+   the effect only tracks `selectedId` and the three view queries, so nothing else re-runs it; the
+   test "does not steal focus back on image load or new parks data" passes with the guard removed.
+   It only fails if the effect is also made to track `parks()`, which the subagent tried. So the
+   guard is a backup with no scenario that exercises it today. Options for Pass A: keep it (cheap
+   insurance against someone adding a tracked read later, and the comment on the fields explains
+   it), or drop it and rely on the tracking discipline plus the existing test. If kept, a comment
+   on line 52 saying it is a backup would help the next reader.
+
+Also worth a line in the README "how it was checked": after browser Back triggered by a mouse
+history, the restored list link has focus but no ring, because Chromium hides `:focus-visible`
+after pointer input; keyboard paths always show it.
+
+The docs commit for this file and the session 4 time log row landed as `a5f46e4`; this section
+was added after it, in a follow-up docs commit.
 
 ## 7. Transcripts for the submission
 
