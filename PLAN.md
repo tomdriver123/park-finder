@@ -63,23 +63,23 @@ layer.
 
 ### Display (ParkPanel)
 
-| Case                                    | Rule                                                                                                                                                                                                                                               |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| description null                        | "No description available."                                                                                                                                                                                                                        |
-| address null, coordinates present       | `40.6789, -73.9442` (numbers verbatim, comma and space)                                                                                                                                                                                            |
-| address and coordinates both null       | "Location not available"                                                                                                                                                                                                                           |
-| hours null / acreage null / rating null | Row hidden                                                                                                                                                                                                                                         |
-| acreage                                 | `212 acres`                                                                                                                                                                                                                                        |
-| rating                                  | Bare number (`4.7`); no scale, the data states none                                                                                                                                                                                                |
-| amenities []                            | Section hidden, and no emoji row in the summary                                                                                                                                                                                                    |
-| amenities (session 7)                   | Summary holds an `aria-hidden` emoji row (one emoji per amenity from `amenity-emoji.ts`, unknown label → 🌳); the Amenities list shows `aria-hidden` emoji plus the text label per item                                                            |
-| images (session 7)                      | Summary holds a decorative `aria-hidden` thumbnail of the first image beside the `<dl>`; a "Photo" (one) / "Photos" (several) section stacks one frame per image, alt `{name} photo` for one, `{name} photo {n}` (1-based) for several; no caption |
-| image fails to load                     | Placeholder in the frame with visible text "No image available"                                                                                                                                                                                    |
-| images []                               | One placeholder, no skeleton, no caption, no thumbnail                                                                                                                                                                                             |
-| unknown id in the URL                   | "Park not found" heading; only once loading is over and `error` is null (a load failure shows the error, never "not found"). The Back link is in the page bar (next row), not in the panel                                                         |
-| Back link (session 7)                   | Owned by ParksPage, in the panel bar's left slot whenever `id()` is set (including not found): icon-only `<a routerLink="/parks">` with a `<` chevron, `aria-label` and `title` "Back to parks". ParkPanel renders no Back link                    |
-| list item text                          | Park name only                                                                                                                                                                                                                                     |
-| h1 / document title                     | "Park Finder". The municipality is New York City (the sample's coordinates and addresses); the README says so. The UI names no city because the park names are invented and real borough labels would sit under fictional parks                    |
+| Case                                    | Rule                                                                                                                                                                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| description null                        | "No description available."                                                                                                                                                                                                                                   |
+| address null, coordinates present       | `40.6789, -73.9442` (numbers verbatim, comma and space)                                                                                                                                                                                                       |
+| address and coordinates both null       | "Location not available"                                                                                                                                                                                                                                      |
+| hours null / acreage null / rating null | Row hidden                                                                                                                                                                                                                                                    |
+| acreage                                 | `212 acres`                                                                                                                                                                                                                                                   |
+| rating                                  | Bare number (`4.7`); no scale, the data states none                                                                                                                                                                                                           |
+| amenities []                            | Section hidden, and no emoji row in the summary                                                                                                                                                                                                               |
+| amenities (session 7)                   | Summary holds an `aria-hidden` emoji row (one emoji per amenity from `amenity-emoji.ts`, unknown label → 🌳); the Amenities list shows `aria-hidden` emoji plus the text label per item                                                                       |
+| images (session 7)                      | Summary holds a decorative `aria-hidden` thumbnail of the first image beside the `<dl>`; a "Photo" (one) / "Photos" (several) section stacks one frame per image, alt `{name} photo` for one, `{name} photo {n}` (1-based) for several; no caption            |
+| image fails to load                     | Placeholder in the frame with visible text "No image available"                                                                                                                                                                                               |
+| images []                               | One placeholder, no skeleton, no caption, no thumbnail                                                                                                                                                                                                        |
+| unknown id in the URL                   | "Park not found" heading; only once loading is over and `error` is null (a load failure shows the error, never "not found"). The Back link is in the page bar (next row), not in the panel                                                                    |
+| Back link (session 7)                   | Owned by ParksPage: icon-only `<a routerLink="/parks">` with a `<` chevron, `aria-label` and `title` "Back to parks", shown whenever `id()` is set (including not found). Projected into the panel bar's start slot (Slice 8). ParkPanel renders no Back link |
+| list item text                          | Park name only                                                                                                                                                                                                                                                |
+| h1 / document title                     | "Park Finder". The municipality is New York City (the sample's coordinates and addresses); the README says so. The UI names no city because the park names are invented and real borough labels would sit under fictional parks                               |
 
 ### Styling
 
@@ -635,6 +635,42 @@ Tests first:
 Done when: tests green, build clean, Prettier clean, diff shown, Tom says commit. Tom said one
 extra feedback round on colors may follow; that round is a [sonnet] follow-up inside this slice.
 Commit: `feat(style): apply the palette as fills and color each pin`.
+
+## Slice 8: bar title, outlined controls, centered header [sonnet]
+
+Tom's final change after Slices 5–7 (session 7, 04:05 EDT). Files: `src/app/app.css`,
+`src/app/parks-page.{html,css,spec.ts}`, `src/app/panel/park-panel.{html,css,ts,spec.ts}`.
+
+Decisions:
+
+- The three bar controls (Back, Recenter, sheet toggle) share one style: white icon, transparent
+  background, 1px white border, 44×44 `border-box`, hover `color-mix(white 15%, transparent)`.
+  No tertiary fill in the bar any more. The bar has `--space-2` padding on every side.
+- The panel heading ("Parks", the park name, or "Park not found") sits in the middle of the brown
+  bar in white, centered between the start and end slots. "Park Finder" is centered in the green
+  header.
+- Structure (decided by [fable] so the focus logic and its specs stay in one place): ParkPanel
+  renders the bar (`.panel-bar` grid `44px 1fr 44px`, `.slot` start, `<h2 id="panel-heading" tabindex="-1" #heading>{{ title() }}</h2>`,
+  `.slot` end) and a scrolling `.panel-body`; ParksPage projects its controls into the slots with
+  `data-slot="start"` / `data-slot="end"` through `<ng-content select>`. The page still owns the
+  controls, their handlers, and the sheet state. `.sheet-content` is a flex column with no
+  padding; `.panel-body` is the one scroll container with `--space-3` padding inside it.
+- `title` is a `computed`: list → "Parks"; details → the park name; unknown id → "Park not found"
+  once loading is over and there is no error; while loading or on error with an id → "Parks". The
+  not-found body shows "No park matches this link." under the heading. `nav` is labelled by the
+  heading (`aria-labelledby="panel-heading"`).
+- Focus: one `heading` ref replaces `listHeading` / `detailsHeading`. Details mode focuses the
+  heading once per id and only once loading is over (so the heading already reads the park name
+  when it is announced); return to list focuses the park link, falling back to the heading.
+- Keyboard order in details mode is Back, heading, toggle (mobile), then the body, so Shift+Tab
+  from the heading reaches Back on every width.
+
+Verified by [fable] in headless Chrome at 1280×800 and 375×667: title centered on the bar, white
+controls 44px, h1 centered, bar bottom padding 8px, the keyboard walk (Tab → Recenter → first
+link → Enter → heading with white ring → Shift+Tab → Back → Enter → link focused), deep link
+focuses the heading with the park name, no text under 16px.
+
+Commit: `style(panel): title in the bar, outlined controls, centered header`.
 
 ## Wrap-up (after slice 4)
 
