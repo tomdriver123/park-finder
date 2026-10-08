@@ -50,8 +50,7 @@ should use its own tile provider or get a usage agreement.
 
 ## What works
 
-In my own words, from using it on a phone and a desktop: the map zooming, the mobile view, the
-navigation is seamless, and the responsive design in general.
+In my own words, from using it on a phone and a desktop: the map zooming, the mobile view, the navigation, and the responsive design in general.
 
 Also:
 
@@ -68,7 +67,6 @@ Also:
 - Current location.
 - Retry on load failure.
 - Backend, accounts, and hosting.
-- The brief's two-hour cap. I went over it (see Time spent).
 
 ## Important decisions
 
@@ -108,7 +106,6 @@ The full record is in `docs/plans/PLAN.md` (decisions, architecture, slices) and
   Chromium hides `:focus-visible` after pointer input. Keyboard paths always show the ring.
 - The Leaflet container is a Tab stop before the pins.
 - The playground emoji needs Emoji 14 and shows a box on older systems.
-- No retry on load failure.
 - A wheel zoom and a Recenter click within about 30ms of each other leave the map zoomed in:
   Leaflet debounces wheel zoom for about 40ms and applies it after the refit. Found by a scripted
   check; a person cannot do both that fast. Gaps of 30ms or more recenter correctly.
@@ -171,25 +168,22 @@ Paths:
 I went over the brief's two-hour cap. The extra time went to planning documents, review passes,
 and the session 7 polish after I used the app on my phone.
 
-Wall-clock from session timestamps (2026-10-07 and 10-08, EDT):
+| Session | Work                                | Time Spent |
+| ------- | ----------------------------------- | -----------|
+| 1       | Setup, scaffold, grill              | ~30 min    |
+| 2       | PLAN.md                             | ~45 min    |
+| 3       | Slice 1, Codex plan review          | ~15 min    |
+| 4       | Slice 2 (parallel with session 5)   | ~15 min    |
+| 5       | Slice 3 (parallel with session 4)   | ~15 min    |
+| 6       | Slice 4                             | ~10 min    |
+| 7       | Session 7 plan (`plan-feedback.md`) | ~15 min    |
+| 8       | Slices 5 to 8                       | ~20 min    |
+| 9       | Wrap-up: docs, transcripts, README  | ~30 min    |
 
-| Session | Work                                | Wall-clock                  |
-| ------- | ----------------------------------- | --------------------------- |
-| 1       | Setup, scaffold, grill              | ~45 min (23:45-00:28)       |
-| 2       | PLAN.md                             | ~60 min (00:31-01:46)       |
-| 3       | Slice 1, Codex plan review          | ~20 min (01:49-02:10)       |
-| 4       | Slice 2 (parallel with session 5)   | ~20 min (02:12-02:32)       |
-| 5       | Slice 3 (parallel with session 4)   | ~25 min (02:12-02:37)       |
-| 6       | Slice 4                             | ~11 min (02:38-02:49)       |
-| 7       | Session 7 plan (`plan-feedback.md`) | ~15 min (03:18-03:33)       |
-| 8       | Slices 5 to 8                       | ~40 min (03:34-04:13)       |
-| 9       | Wrap-up: docs, transcripts, README  | ~60 min (03:45-about 04:45) |
+Total time spent is about 3 hours. 
+The transcripts will cover a longer timeframe, but I had to step away
+from the computer several times during the process.
 
-Summed session time is about 4.5 hours; the elapsed window is 23:45 to about 04:45. I stepped away
-from the computer during some sessions (session 2 in particular), so wall-clock overstates focused
-work.
-
-Focused time: TODO Tom
 
 ## Next steps before public use
 

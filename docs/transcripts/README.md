@@ -18,7 +18,7 @@ To regenerate after a new session: `python3 docs/transcripts/export-transcripts.
 | [8](transcript-8.md) | `dcbecbd2-33e8-4628-929a-f5b1006ed01c` | 2026-10-08 02:38 | 2026-10-08 02:49 | 54 / 78 | 1 | <ide_opened_file>The user opened the file /Users/tom/park-finder/handoffs/handoff-5.md in the IDE. T… |
 | [9](transcript-9.md) | `c732f502-464e-4f8e-96af-3753a53b1134` | 2026-10-08 03:18 | 2026-10-08 03:33 | 54 / 65 | 0 | handoffs/handoff-7.md <pasted_content id="df92"> Okay, we are going to do one final plan and session… |
 | [10](transcript-10.md) | `a4afaaf8-16b0-4c0c-bd69-fe885a7e4af0` | 2026-10-08 03:34 | 2026-10-08 04:13 | 93 / 145 | 5 | <ide_opened_file>The user opened the file /Users/tom/.claude/plans/handoffs-handoff-7-md-pasted-cont… |
-| [11](transcript-11.md) | `b9361792-d304-4f27-bf87-a36c58eb368a` | 2026-10-08 03:45 | 2026-10-08 04:21 | 39 / 73 | 3 | /Users/tom/.claude/plans/handoffs-handoff-7-md-pasted-content-id-rustling-sunbeam.md this is my late… |
+| [11](transcript-11.md) | `b9361792-d304-4f27-bf87-a36c58eb368a` | 2026-10-08 03:45 | 2026-10-08 04:21 | 40 / 74 | 3 | /Users/tom/.claude/plans/handoffs-handoff-7-md-pasted-content-id-rustling-sunbeam.md this is my late… |
 
 ## Codex sessions
 
