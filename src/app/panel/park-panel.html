@@ -1,0 +1,77 @@
+@if (selectedId() === undefined) {
+  <nav aria-labelledby="parks-heading">
+    <h2 id="parks-heading" tabindex="-1" #listHeading>Parks</h2>
+    @if (loading()) {
+      <p role="status">Loading parks…</p>
+    } @else if (error()) {
+      <p role="alert">{{ error() }}</p>
+    } @else if (parks().length === 0) {
+      <p>No parks to show.</p>
+    } @else {
+      <ul class="park-list">
+        @for (park of parks(); track park.id) {
+          <li>
+            <a #parkLink [routerLink]="['/parks', park.id]" [attr.data-park-id]="park.id">{{
+              park.name
+            }}</a>
+          </li>
+        }
+      </ul>
+    }
+  </nav>
+} @else if (loading()) {
+  <p role="status">Loading parks…</p>
+} @else if (error()) {
+  <p role="alert">{{ error() }}</p>
+} @else {
+  @if (selected(); as park) {
+    <article>
+      <a class="back" routerLink="/parks">Back to parks</a>
+      <h2 tabindex="-1" #detailsHeading>{{ park.name }}</h2>
+      <dl>
+        <dt>Location</dt>
+        <dd>
+          @if (park.address !== null) {
+            {{ park.address }}
+          } @else if (park.coordinates !== null) {
+            {{ park.coordinates.lat }}, {{ park.coordinates.lng }}
+          } @else {
+            Location not available
+          }
+        </dd>
+        @if (park.hours !== null) {
+          <dt>Hours</dt>
+          <dd>{{ park.hours }}</dd>
+        }
+        @if (park.acreage !== null) {
+          <dt>Size</dt>
+          <dd>{{ park.acreage }} acres</dd>
+        }
+        @if (park.rating !== null) {
+          <dt>Rating</dt>
+          <dd>{{ park.rating }}</dd>
+        }
+      </dl>
+      <h3>Description</h3>
+      <p>{{ park.description ?? 'No description available.' }}</p>
+      @if (park.amenities.length > 0) {
+        <h3>Amenities</h3>
+        <ul class="amenities">
+          @for (amenity of park.amenities; track $index) {
+            <li>{{ amenity }}</li>
+          }
+        </ul>
+      }
+      <h3>Photo</h3>
+      <app-park-image [src]="park.images[0] ?? null" [alt]="park.name + ' photo'" />
+      @if (park.images.length > 1) {
+        <p class="caption">
+          and {{ park.images.length - 1 }} more {{ park.images.length === 2 ? 'photo' : 'photos' }}
+        </p>
+      }
+    </article>
+  } @else {
+    <h2 tabindex="-1" #detailsHeading>Park not found</h2>
+    <a class="back" routerLink="/parks">Back to parks</a>
+  }
+}

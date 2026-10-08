@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+
+h2 {
+  margin: 0 0 var(--space-3);
+  color: var(--color-primary);
+}
+
+h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--color-secondary);
+  font-size: 1.1rem;
+}
+
+.park-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.park-list li {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.park-list a {
+  display: block;
+  padding: var(--space-3) var(--space-2);
+  color: var(--color-tertiary);
+  text-decoration: none;
+}
+
+.park-list a:hover {
+  background: var(--color-surface-tint);
+  text-decoration: underline;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  background: var(--color-tertiary);
+  color: var(--color-surface);
+  text-decoration: none;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+dt {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+dd {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.amenities {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.caption {
+  margin-top: var(--space-2);
+  color: var(--color-secondary-light);
+  font-size: 0.9rem;
+}
