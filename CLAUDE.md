@@ -3,7 +3,7 @@
 Take home for Granicus. Two hour cap. Small, polished, accessible.
 
 ## Source documents
-The brief is docs/local-parks-candidate.pdf. The data is public/assets/parks.sample.json. Read both at the start of every session, along with PLAN.md. This file is the distilled contract. Where this file and the brief seem to disagree, ask Tom instead of choosing. Optional items in the brief stay out of scope unless PLAN.md lists them.
+The brief is docs/local-parks-candidate.pdf. The data is public/assets/parks.sample.json. Read both at the start of every session, along with docs/plans/PLAN.md. This file is the distilled contract. Where this file and the brief seem to disagree, ask Tom instead of choosing. Optional items in the brief stay out of scope unless PLAN.md lists them.
 
 ## Scope
 Core loop only. A list of parks, a details view, a map with markers. Selecting a park from the list, the map, or the URL opens the same details. No backend, no accounts, no geolocation. Search and filters only if the core loop is done and verified.

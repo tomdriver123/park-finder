@@ -11,7 +11,7 @@ out of scope. Deferred items at the end are known gaps, not scope.
 Steps are tagged with who runs them: [fable] this overseeing session, [opus] or [sonnet] a
 subagent with that model passed explicitly. See Model routing below.
 
-1. [fable] Read, in order: the handoff Tom names (normally the newest `handoffs/handoff-N.md`),
+1. [fable] Read, in order: the handoff Tom names (normally the newest `docs/handoffs/handoff-N.md`),
    CLAUDE.md, `docs/local-parks-candidate.pdf`, `public/assets/parks.sample.json`, this file.
    Sessions 4 and 5 run in parallel (decided in session 3): slice 2 on main from handoff-3, slice
    3 in the worktree `../park-finder-slice-3` on branch `slice-3` from handoff-4. Slice 2 commits
