@@ -1,6 +1,26 @@
-<main>
-  <app-park-panel [parks]="parks()" [loading]="loading()" [error]="error()" [selectedId]="id()" />
+<main #sheet [class.is-expanded]="expanded()">
+  @if (isMobile()) {
+    <div class="sheet-bar">
+      <button
+        type="button"
+        class="sheet-toggle"
+        [attr.aria-expanded]="expanded()"
+        aria-controls="sheet"
+        (click)="toggleSheet()"
+      >
+        {{ expanded() ? 'Show less' : 'Show more' }}
+      </button>
+    </div>
+  }
+  <div id="sheet" class="sheet-content">
+    <app-park-panel [parks]="parks()" [loading]="loading()" [error]="error()" [selectedId]="id()" />
+  </div>
 </main>
-<aside aria-label="Map">
-  <app-park-map [parks]="parks()" [selectedId]="id()" (select)="onSelect($event)" />
+<aside aria-label="Map" (focusin)="onMapFocusIn()">
+  <app-park-map
+    [parks]="parks()"
+    [selectedId]="id()"
+    [centerOffset]="centerOffset()"
+    (select)="onSelect($event)"
+  />
 </aside>

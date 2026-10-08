@@ -12,7 +12,8 @@ describe('ParksPage (integration)', () => {
   let harness: RouterTestingHarness;
   let httpTesting: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeEach(() => {
+    harness = undefined as unknown as RouterTestingHarness;
     TestBed.configureTestingModule({
       providers: [
         provideRouter(routes, withComponentInputBinding()),
@@ -20,7 +21,6 @@ describe('ParksPage (integration)', () => {
         provideHttpClientTesting(),
       ],
     });
-    harness = await RouterTestingHarness.create();
     httpTesting = TestBed.inject(HttpTestingController);
   });
 
@@ -37,6 +37,8 @@ describe('ParksPage (integration)', () => {
   }
 
   async function go(url: string): Promise<void> {
+    // Created lazily so a describe block can stub matchMedia before the page exists.
+    harness ??= await RouterTestingHarness.create();
     await harness.navigateByUrl(url);
     await harness.fixture.whenStable();
   }
@@ -115,5 +117,79 @@ describe('ParksPage (integration)', () => {
     expect(TestBed.inject(Router).url).toBe('/parks/highland-dog-park');
     expect(heading()).toBe('Highland Dog Park');
     expect(pin?.classList.contains('is-selected')).toBe(true);
+  });
+
+  it('renders no sheet toggle on desktop', async () => {
+    await go('/parks');
+    await flushSample();
+    expect(root().querySelector('button[aria-controls="sheet"]')).toBeNull();
+  });
+
+  describe('mobile sheet', () => {
+    const MOBILE_QUERY = '(max-width: 767.98px)';
+
+    beforeEach(() => {
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        writable: true,
+        value: (query: string) => ({
+          matches: query === MOBILE_QUERY,
+          media: query,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+        }),
+      });
+    });
+
+    afterEach(() => {
+      delete (window as unknown as { matchMedia?: unknown }).matchMedia;
+    });
+
+    function toggle(): HTMLButtonElement {
+      return root().querySelector<HTMLButtonElement>('main button[aria-controls="sheet"]')!;
+    }
+
+    it('toggle button starts collapsed and expands on click', async () => {
+      await go('/parks');
+      await flushSample();
+      expect(toggle().textContent?.trim()).toBe('Show more');
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+
+      toggle().click();
+      await harness.fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+      expect(toggle().textContent?.trim()).toBe('Show less');
+      expect(root().querySelector('main')?.classList.contains('is-expanded')).toBe(true);
+    });
+
+    it('navigating to a park expands the sheet, back collapses it', async () => {
+      await go('/parks');
+      await flushSample();
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+
+      await go('/parks/prospect-park');
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+
+      await go('/parks');
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('focus moving into the map collapses the expanded sheet', async () => {
+      await go('/parks/prospect-park');
+      await flushSample();
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+
+      root()
+        .querySelector('aside .leaflet-container')
+        ?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      await harness.fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('main precedes aside in the DOM', async () => {
+      await go('/parks');
+      await flushSample();
+      expect(root().querySelector('main')?.nextElementSibling?.tagName).toBe('ASIDE');
+    });
   });
 });

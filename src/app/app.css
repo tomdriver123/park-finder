@@ -1,3 +1,14 @@
+:host {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+}
+
+/* The outlet is an empty placeholder; hiding it keeps the routed page as the second grid row. */
+router-outlet {
+  display: none;
+}
+
 header {
   padding: var(--space-3);
   border-bottom: 1px solid var(--color-border);

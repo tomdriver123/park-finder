@@ -78,5 +78,5 @@ p {
 .caption {
   margin-top: var(--space-2);
   color: var(--color-secondary-light);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
